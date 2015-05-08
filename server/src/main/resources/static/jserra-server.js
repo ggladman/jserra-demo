@@ -13,10 +13,12 @@ function connect() {
             receiveMessage(JSON.parse(receipt.body));
         });
     });
+    speakText("the server is online.");
     fadeInMain();
 }
 
 function receiveRegistration(registration) {
+    document.getElementById('audio_chime').play();
     console.log(registration);
     var htmlMessage = "<tr class='recipient'>";
     htmlMessage += "<td class='username'>" + registration.username + "</td>";
@@ -28,14 +30,25 @@ function receiveRegistration(registration) {
 function receiveMessage(receipt) {
     console.log(receipt);
 
+    speakText(receipt.sender + " has sent $" + receipt.amount + " to " + receipt.recipient + ", with the message '" + receipt.message + "'.");
+
     $("#recipienttable").find("tr").each(function() {
         var username = $(this).find(".username").html();
         var balance = Number($(this).find(".currbalance").html());
         var sendAmount = Number(receipt.amount);
         console.log("username: " + username);
+        // decrement the sender's balance
         if (username == receipt.sender) {
             console.log("match!");
             var newbalance = balance - sendAmount;
+            console.log("new balance = " + newbalance)
+            $(this).find(".currbalance").html(newbalance);
+
+        }
+        // increment the sender's balance
+        else if (username == receipt.recipient) {
+            console.log("match!");
+            var newbalance = balance + sendAmount;
             console.log("new balance = " + newbalance)
             $(this).find(".currbalance").html(newbalance);
         }
@@ -57,6 +70,14 @@ function receiveMessage(receipt) {
 
 function fadeInMain() {
     $("#main").fadeIn("slow");
+}
+
+function speakText(textToSpeak) {
+    if ('speechSynthesis' in window) {
+        var msg = new SpeechSynthesisUtterance(textToSpeak);
+        // msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Pipe Organ'; })[0];
+        speechSynthesis.speak(msg);
+    }
 }
 
 window.onload = connect;

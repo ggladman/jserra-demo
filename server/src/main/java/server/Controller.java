@@ -92,11 +92,14 @@ public class Controller {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
-        RegisteredUser registeredUser = findUserByName(sender);
-        if (registeredUser != null) {
-            registeredUser.setBalance(registeredUser.getBalance().subtract(new BigDecimal(amount)));
+        RegisteredUser registeredUserSender = findUserByName(sender);
+        RegisteredUser registeredUserRecipient = findUserByName(recipient);
+        if ((registeredUserSender != null) && (registeredUserRecipient != null)) {
+            registeredUserSender.setBalance(registeredUserSender.getBalance().subtract(new BigDecimal(amount)));
+            registeredUserRecipient.setBalance(registeredUserRecipient.getBalance().add(new BigDecimal(amount)));
         }
 
+        // TODO: add a status code and/or message to the response object
         SendMoneyResponse sendMoneyResponse = new SendMoneyResponse();
         sendMoneyResponse.setSender(sender);
         sendMoneyResponse.setRecipient(recipient);

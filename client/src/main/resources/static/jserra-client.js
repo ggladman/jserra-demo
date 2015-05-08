@@ -33,7 +33,7 @@ function receiveMessage(receipt) {
         updateDisplayedBalance();
         speakText("You have received $" + receipt.amount + " from " + receipt.sender + ", with the message '" + receipt.message + "'.");
     } else {
-        speakText(receipt.sender + " has sent $" + receipt.amount + " to " + receipt.recipient + ", with the message '" + receipt.message + "'.");
+        // speakText(receipt.sender + " has sent $" + receipt.amount + " to " + receipt.recipient + ", with the message '" + receipt.message + "'.");
     }
 }
 
@@ -91,6 +91,7 @@ function sendMoney() {
 function updateDisplayedBalance() {
     $("#balance").html('$' + currBalance.toFixed(2));
 }
+
 function speakText(textToSpeak) {
     if ('speechSynthesis' in window) {
         var msg = new SpeechSynthesisUtterance(textToSpeak);
