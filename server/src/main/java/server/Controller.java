@@ -40,7 +40,7 @@ public class Controller {
     @Value("${startingBalance:100.00}")
     private String defaultBalance;
 
-    private List<RegisteredUser> registeredUsers = new ArrayList<>();
+    private List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
     @ResponseBody
     @RequestMapping(method = POST,
