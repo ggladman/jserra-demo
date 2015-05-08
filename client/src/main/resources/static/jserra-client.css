@@ -1,0 +1,111 @@
+body {
+    margin: 0px;
+    background-color: #37982c;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+}
+
+#register {
+    display: none;
+    text-align: center;
+    margin-top: 45vh;
+}
+
+#main {
+    display: none;
+}
+
+#teamname {
+    font-size: 36pt;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40pt;
+}
+
+#balance {
+    font-size: 160pt;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20pt;
+    padding: 12pt 24pt 12pt 24pt;
+    border: 1px solid white;
+    border-radius: 36pt;
+    display: inline-block;
+}
+
+#submit {
+    margin-top: 24pt;
+}
+
+#recipients select {
+    margin-top: 10pt;
+    font-size: 24pt;
+    border: 1px solid white;
+    border-radius: 6pt;
+    width: 20%;
+}
+
+#recipients option {
+    font-size: 24pt;
+    font-family: 'Lato', sans-serif !important;
+    font-weight: 300 !important;
+    padding-left: 12pt;
+    padding-right: 12pt;
+    text-align: center;
+    background-color: #37982c;
+}
+
+#recipients option:checked {
+    background: linear-gradient(#46c238, #46c238);
+}
+
+#sendinput {
+    margin-top: 48pt;
+}
+
+#sendinput input {
+    background-color: #37982c;
+    font-size: 24pt;
+    font-family: 'Lato', sans-serif !important;
+    font-weight: 300 !important;
+    text-align: center;
+    margin-top: 10pt;
+    padding: 6pt 2% 8pt 2%;
+    border: 1px solid white;
+    border-radius: 6pt;
+    width: 16%;
+}
+
+#sendinput input:focus {
+    border: 1px solid white;
+    outline: none;
+    background-color: #69b261;
+}
+
+.label {
+    font-size: 24pt;
+    font-weight: 100;
+    margin-top: 10pt;
+}
+
+button {
+    font-size: 24pt;
+    font-family: 'Lato', sans-serif !important;
+    font-weight: 300 !important;
+    padding: 8pt 16pt 12pt 16pt;
+    color: white;
+    text-align: center;
+    background: #46c238;
+    border: 0;
+    border-bottom: 2px solid #219d55;
+    cursor: pointer;
+    -webkit-box-shadow: inset 0 -2px #219d55;
+    box-shadow: inset 0 -2px #219d55;
+}
+
+.bigbutton {
+    font-size: 48pt !important;
+}
