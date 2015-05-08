@@ -16,7 +16,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -164,7 +163,7 @@ public class Controller implements MessageListener {
     }
 
     private void setupRabbitListener() throws IOException {
-        ConnectionFactory cf = new CachingConnectionFactory();
+        ConnectionFactory cf = RabbitConfiguration.connectionFactory();
         Connection connection = cf.createConnection();
         Channel channel = connection.createChannel(true);
         String queueName = channel.queueDeclare().getQueue();
