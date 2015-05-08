@@ -13,7 +13,20 @@ The goal of the applications is to allow each student to run a client applicatio
 * Both the server and the client support REST APIs which are called by their respective web front-ends.
 * The server also supports a REST API which is intended for use by the clients.
 * Communication from the Spring controller to the web app is done via STOMP over websockets, using Spring support for Java and the STOMP JS library for the webapps.
+* Notifications are broadcast from the server to all clients via a RabbitMQ topic exchange.
 
+## Useful information
+
+* both projects are now configured to build with Java 1.6.
+
+* rabbitmq is required to run on the server machine (although this could be changed to be any external rabbit instance).
+
+* to start rabbitmq, if you have it installed (i.e., not via vagrant):
+
+    `/sbin/rabbitmq_server-3.1.5/sbin/rabbitmq-server start`
+* to launch the rabbitmq console:
+
+    `http://localhost:15672/#/`
 
 ## to-do items (MANDATORY)
 * SERVER: increment the recipient's balance on the server on receipt of xfers
