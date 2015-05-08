@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Junipero Serra Server</title>
+    <script src="sockjs-0.3.4.js"></script>
+    <script src="stomp.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <style>
+        body {
+            margin 0px; 
+            background-color: #37982c;
+            color: white;
+            font-family: 'Lato', sans-serif;
+            font-weight: 300;
+        }
+        #main {
+            display: none;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+        #recipienttable {
+            width: 100%;
+        }
+        #recipient_list {
+            margin-top: 10pt;
+            margin-right: 2.5%;
+            font-size: 24pt;
+            background-color: forestgreen;
+            width: 45%;
+            float: left;
+        }
+        .recipient {
+            font-size: 24pt;
+            width: 100%;
+        }
+        .username {
+            padding-right: 10pt;
+        }
+        .currbalance {
+            text-align: right;
+        }
+        #messages {
+            margin-top: 10pt;
+            margin-left: 2.5%;
+            font-size: 24pt;
+            background-color: forestgreen;
+            width: 45%;
+            float: left;
+        }
+        .message {
+            background-color: rgba(255,255,255,0.3);
+            width: 92%;
+            margin: 2%;
+            font-size: 16pt;
+            padding: 2%;
+        }
+        .messageproperty {
+            padding-right: 16pt;
+            opacity: 0.6;
+            vertical-align: top;
+        }
+        .messagevalue {
+            vertical-align: bottom;
+        }
+        #sendinput {
+            margin-top: 48pt;
+        }
+        #sendinput input {
+            background-color: #37982c;
+            font-size: 24pt;
+            font-family: 'Lato', sans-serif !important;
+            font-weight: 300 !important;
+            text-align: center;
+            margin-top: 10pt;
+            padding: 6pt 2% 8pt 2%;
+            border: 1px solid white;
+            border-radius: 6pt;
+            width: 16%;
+        }
+        #sendinput input:focus {
+            border: 1px solid white;
+            outline: none;
+            background-color: #69b261;
+        }
+        .label {
+            font-size: 24pt;
+            font-weight: 100;
+            margin-top: 6pt;
+            margin-botton: 4pt;
+        }
+        button {
+            font-size: 24pt;
+            font-family: 'Lato', sans-serif !important;
+            font-weight: 300 !important;
+            padding: 8pt 16pt 12pt 16pt;
+            color: white;
+            text-align: center;
+            background: #46c238;
+            border: 0;
+            border-bottom: 2px solid #219d55;
+            cursor: pointer;
+            -webkit-box-shadow: inset 0 -2px #219d55;
+            box-shadow: inset 0 -2px #219d55;        
+        }
+        .bigbutton {
+            font-size: 48pt !important;
+        }
+
+    </style>
+    <script type="text/javascript">
+
+        function connect() {
+            var socket = new SockJS('/request');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/registrations', function(registration){
+                    console.log(registration);
+                    receiveRegistration(JSON.parse(registration.body));
+                });
+                stompClient.subscribe('/topic/receipts', function(receipt){
+                    console.log(receipt);
+                    receiveMessage(JSON.parse(receipt.body));
+                });
+            });
+            fadeInMain();
+        }
+
+        function receiveRegistration(registration) {
+            console.log(registration);
+            var htmlMessage = "<tr class='recipient'>";
+            htmlMessage += "<td class='username'>" + registration.username + "</td>";
+            htmlMessage += "<td class='currbalance'>" + registration.balance.toFixed(2) + "</td>";
+            htmlMessage += "</tr>"
+            $("#recipienttable").append(htmlMessage);
+        }
+
+        function receiveMessage(receipt) {
+            console.log(receipt);
+
+            $("#recipienttable").find("tr").each(function() {
+                var username = $(this).find(".username").html();
+                var balance = Number($(this).find(".currbalance").html());
+                var sendAmount = Number(receipt.amount);
+                console.log("username: " + username);
+                if (username == receipt.sender) {
+                    console.log("match!");
+                    var newbalance = balance - sendAmount;
+                    console.log("new balance = " + newbalance)
+                    $(this).find(".currbalance").html(newbalance);
+                }
+            });
+
+            var htmlMessage = "<div class='message'>";
+            htmlMessage += "<table>"
+            for (prop in receipt) {
+                console.log(prop);
+                console.log(prop + " : " + receipt[prop]);
+                htmlMessage += "<tr>"
+                htmlMessage += "<td class='messageproperty'>" + prop + "</td>";
+                htmlMessage += "<td class='messagevalue'>" + receipt[prop] + "</td>";
+                htmlMessage += "</tr>";
+            }
+            htmlMessage += "</div>";
+            $("#messages").append(htmlMessage);
+        }
+
+        function fadeInMain() {
+            $("#main").fadeIn("slow");
+        }
+
+        window.onload = connect;
+
+    </script
+</head>
+<body>
+    <div id="main">
+        <div id="recipient_list">
+            <div class="label">recipients</div>
+            <table id="recipienttable"></table>
+        </div>
+        <div id="messages">
+            <div class="label">messages</div>
+        </div>
+    </div>
+</body>
+</html>
