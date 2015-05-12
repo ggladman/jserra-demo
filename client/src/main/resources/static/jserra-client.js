@@ -67,6 +67,8 @@ function sendMoney() {
         alert("WTF!? That's not a number!")
         return;
     }
+    userAmountAsNumber = Number(userAmountAsNumber).toFixed(2);
+
     if (userAmountAsNumber > currBalance) {
         alert("You don't have that much money.");
         return;
@@ -75,11 +77,12 @@ function sendMoney() {
 
     var userRecipient = $("#recipients").val();
     if (userRecipient == null) {
-        alert("You must pick a recipient.");
+        alert("You must pick a recipient.");F
         return;
     }
     $.post( "jserra/sendmoney", { recipient: userRecipient, amount: userAmountAsNumber, message: userMessage}, function(data) {
-        $("#sendamount").val(Number(data.amount).toFixed(2));
+        //$("#sendamount").val(Number(data.amount).toFixed(2));
+        $("#sendamount").val(Number(data.amount));
         $("#message").val(data.message);
         $("#recipients").val(data.recipient);
 
