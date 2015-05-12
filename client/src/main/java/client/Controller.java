@@ -18,7 +18,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.Connection;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,6 +62,12 @@ public class Controller implements MessageListener {
 
     @Value("${serverURI:http://localhost:9090/jserra}")
     private String baseURI;
+
+    @Value("${rabbitUserName:xoom}")
+    private String rabbitUserName;
+
+    @Value("${rabbitUserPassword:xoom123}")
+    private String rabbitUserPassword;
 
     @PostConstruct
     private void PostConstruction() {
@@ -167,7 +172,9 @@ public class Controller implements MessageListener {
     }
 
     private void setupRabbitListener() throws IOException {
-        ConnectionFactory cf = new CachingConnectionFactory(amqpHostName);
+        CachingConnectionFactory cf = new CachingConnectionFactory(amqpHostName);
+        cf.setUsername(rabbitUserName);
+        cf.setPassword(rabbitUserPassword);
         Connection connection = cf.createConnection();
         Channel channel = connection.createChannel(true);
         String queueName = channel.queueDeclare().getQueue();
