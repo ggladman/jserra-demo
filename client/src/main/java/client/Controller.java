@@ -133,6 +133,10 @@ public class Controller implements MessageListener {
         }
     }
 
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
+    }
+
     private void processRabbitMessage(JSONObject jsonObject) throws IOException {
         System.out.println("Rabbit message received: " + jsonObject);
 
