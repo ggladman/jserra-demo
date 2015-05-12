@@ -1,14 +1,13 @@
-
 function connect() {
     var socket = new SockJS('/request');
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, function(frame) {
+    stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/registrations', function(registration){
+        stompClient.subscribe('/topic/registrations', function (registration) {
             console.log(registration);
             receiveRegistration(JSON.parse(registration.body));
         });
-        stompClient.subscribe('/topic/receipts', function(receipt){
+        stompClient.subscribe('/topic/receipts', function (receipt) {
             console.log(receipt);
             receiveMessage(JSON.parse(receipt.body));
         });
@@ -44,7 +43,7 @@ function fadeInRegistration() {
 function submitRegistration() {
     $("#register").fadeOut("slow");
 
-    $.getJSON( "jserra/register", function( data ) {
+    $.getJSON("jserra/register", function (data) {
         currUsername = data.username;
         speakText("Welcome, " + currUsername + "!");
         $("#teamname").html(data.username);
@@ -53,6 +52,12 @@ function submitRegistration() {
 
         $("#main").fadeIn("slow");
         // document.getElementById('audio_chime').play();
+
+        for (var i = 0; i < data.registeredUsers.length; i++) {
+            var registeredUser = data.registeredUsers[i]
+            var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
+            $("#recipients").append(htmlMessage);
+        }
     });
 }
 
@@ -78,7 +83,11 @@ function sendMoney() {
         alert("You must pick a recipient.");
         return;
     }
-    $.post( "jserra/sendmoney", { recipient: userRecipient, amount: userAmountAsNumber, message: userMessage}, function(data) {
+    $.post("jserra/sendmoney", {
+        recipient: userRecipient,
+        amount: userAmountAsNumber,
+        message: userMessage
+    }, function (data) {
         $("#sendamount").val(Number(data.amount).toFixed(2));
         $("#message").val(data.message);
         $("#recipients").val(data.recipient);

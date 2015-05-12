@@ -48,7 +48,7 @@ public class Controller {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public RegistrationResponse register(@RequestParam(value = "username") final String username,
-                                       HttpServletRequest request) throws Exception {
+                                         HttpServletRequest request) throws Exception {
         System.out.println("received REGISTER request:");
         System.out.println("    username = " + username);
 
@@ -66,6 +66,7 @@ public class Controller {
         RegistrationResponse registrationResponse = new RegistrationResponse();
         registrationResponse.setUsername(userMatch.getUsername());
         registrationResponse.setBalance(userMatch.getBalance());
+        registrationResponse.setRegisteredUsers(registeredUsers);
 
         if (isNewUser) {
             String destination = "/topic/registrations";
