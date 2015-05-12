@@ -11,11 +11,15 @@ public class RabbitConfiguration {
 
     private static final String AMQP_HOST_NAME = "localhost";
     public static final String AMQP_EXCHANGE_NAME = "jserra";
+    public static final String AMQP_USER_NAME = "xoom";
+    public static final String AMQP_PASSWORD = "xoom123";
 
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory =
                 new CachingConnectionFactory(AMQP_HOST_NAME);
+        connectionFactory.setUsername(AMQP_USER_NAME);
+        connectionFactory.setPassword(AMQP_PASSWORD);
         return connectionFactory;
     }
 
