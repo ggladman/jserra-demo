@@ -53,6 +53,12 @@ function submitRegistration() {
 
         $("#main").fadeIn("slow");
         // document.getElementById('audio_chime').play();
+
+        for (var i = 0; i < data.registeredUsers.length; i++) {
+            var registeredUser = data.registeredUsers[i]
+            var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
+            $("#recipients").append(htmlMessage);
+        }
     });
 }
 
