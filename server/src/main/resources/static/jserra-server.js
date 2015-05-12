@@ -29,8 +29,13 @@ function receiveRegistration(registration) {
 
 function receiveMessage(receipt) {
     console.log(receipt);
+    var messageBlock = receipt.message;
 
-    speakText(receipt.sender + " has sent $" + receipt.amount + " to " + receipt.recipient + ", with the message '" + receipt.message + "'.");
+    if(!(messageBlock== null || messageBlock == "")){
+        messageBlock = ", with the message '" + receipt.message + "'";
+    }
+
+    speakText(receipt.sender + " has sent $" + receipt.amount + " to " + receipt.recipient + messageBlock + ".");
 
     $("#recipienttable").find("tr").each(function() {
         var username = $(this).find(".username").html();
