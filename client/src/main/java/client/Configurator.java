@@ -1,8 +1,14 @@
 package client;
 
+import client.model.SendMoneyRequest;
+
 public class Configurator {
 
-    public void configureController(Controller controller) {
-        // controller.setTeamName("Team Override");
+    public String getTeamName() {
+        return "Default Team";  // "Superman";
+    }
+
+    public String getMessage(SendMoneyRequest sendMoneyRequest) {
+        return null;  //sendMoneyRequest.getMessage();
     }
 }

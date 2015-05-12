@@ -89,7 +89,7 @@ function sendMoney() {
     $.post( "jserra/sendmoney", { recipient: userRecipient, amount: userAmountAsNumber, message: userMessage}, function(data) {
         //$("#sendamount").val(Number(data.amount).toFixed(2));
         $("#sendamount").val(Number(data.amount));
-        $("#message").val(data.message);
+        //$("#message").val(data.message);
         $("#recipients").val(data.recipient);
 
         currBalance -= data.amount;
