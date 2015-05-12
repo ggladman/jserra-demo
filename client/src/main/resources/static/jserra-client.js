@@ -83,7 +83,7 @@ function sendMoney() {
 
     var userRecipient = $("#recipients").val();
     if (userRecipient == null) {
-        alert("You must pick a recipient.");F
+        alert("You must pick a recipient.");
         return;
     }
     $.post( "jserra/sendmoney", { recipient: userRecipient, amount: userAmountAsNumber, message: userMessage}, function(data) {
