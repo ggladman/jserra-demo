@@ -79,7 +79,12 @@ public class Controller implements MessageListener {
         }
     }
 
-    @RequestMapping(value = "/register", method = GET)
+    /*@RequestMapping(value = "/messageHistory", method = GET)
+    public RegistrationResponse register() throws Exception {
+
+    }*/
+
+        @RequestMapping(value = "/register", method = GET)
     public RegistrationResponse register() throws Exception {
         System.out.println("received REGISTER request from webapp.");
 

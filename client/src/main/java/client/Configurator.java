@@ -5,7 +5,8 @@ import client.model.SendMoneyRequest;
 public class Configurator {
 
     public String getTeamName() {
-        return "Default Team";  // "Superman";
+        return null;
+        //return "Default Team";  // "Superman";
     }
 
     public SendMoneyRequest buildSendMoneyRequest(String recipient, String amount, String message) {
@@ -13,7 +14,7 @@ public class Configurator {
 
         sendMoneyRequest.setRecipient(recipient);
         sendMoneyRequest.setAmount(amount);
-        //sendMoneyRequest.setMessage(message);
+        sendMoneyRequest.setMessage(message);
 
         return sendMoneyRequest;
     }
