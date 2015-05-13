@@ -139,6 +139,9 @@ function addUser(id, balance) {
 }
 
 function updateNodeBalance(id, balance) {
+    if (id === null) {
+        return;
+    }
     for (i = 0 ; i < nodeCount; i++) {
         if (nodeIds[i] == id) {
             var elem = cy.getElementById(id);

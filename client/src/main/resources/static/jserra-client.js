@@ -29,7 +29,7 @@ function receiveRegistration(registration) {
 function receiveMessage(receipt) {
     if (receipt.recipient == currUsername) {
         document.getElementById('audio_cashregister').play();
-        currBalance = currBalance + receipt.amount;
+        currBalance = currBalance + Number(receipt.amount);
         updateDisplayedBalance();
         speakText("You have received $" + receipt.amount + " from " + receipt.sender + ", with the message '" + receipt.message + "'.");
     } else {
@@ -48,7 +48,7 @@ function submitRegistration() {
         currUsername = data.username;
         speakText("Welcome, " + currUsername + "!");
         $("#teamname").html(data.username);
-        currBalance = data.balance;
+        currBalance = Number(data.balance);
         $("#balance").html('$' + currBalance.toFixed(2));
 
         $("#main").fadeIn("slow");
@@ -92,7 +92,7 @@ function sendMoney() {
         //$("#message").val(data.message);
         $("#recipients").val(data.recipient);
 
-        currBalance -= data.amount;
+        currBalance -= Number(data.amount);
         updateDisplayedBalance();
     });
 }
