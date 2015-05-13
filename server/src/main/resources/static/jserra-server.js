@@ -139,6 +139,9 @@ function addUser(id, balance) {
 }
 
 function updateNodeBalance(id, balance) {
+    if (id === null) {
+        return;
+    }
     for (i = 0 ; i < nodeCount; i++) {
         if (nodeIds[i] == id) {
             var elem = cy.getElementById(id);
@@ -183,7 +186,7 @@ function activateLink(idFrom, idTo, amount) {
         }
         var link = cy.getElementById(edgeId);
         if (link != null) {
-            link.data('name', "$" + amount.toFixed(2));
+            link.data('name', "$" + Number(amount).toFixed(2));
             link.addClass('highlighted');
 
             var timeout = setTimeout(function() {
