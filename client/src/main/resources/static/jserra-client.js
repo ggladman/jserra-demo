@@ -1,3 +1,4 @@
+
 function connect() {
     var socket = new SockJS('/request');
     stompClient = Stomp.over(socket);
@@ -28,7 +29,7 @@ function receiveRegistration(registration) {
 function receiveMessage(receipt) {
     if (receipt.recipient == currUsername) {
         document.getElementById('audio_cashregister').play();
-        currBalance = currBalance + receipt.amount;
+        currBalance = currBalance + Number(receipt.amount);
         updateDisplayedBalance();
         speakText("You have received $" + receipt.amount + " from " + receipt.sender + ", with the message '" + receipt.message + "'.");
     } else {
@@ -105,7 +106,7 @@ function sendMoney() {
         //$("#message").val(data.message);
         $("#recipients").val(data.recipient);
 
-        currBalance -= data.amount;
+        currBalance -= Number(data.amount);
         updateDisplayedBalance();
     });
 }
