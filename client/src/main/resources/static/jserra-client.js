@@ -28,7 +28,7 @@ function receiveRegistration(registration) {
         speakText(registration.username + " has logged in.");
         var htmlMessage = "<option value=\"" + registration.username + "\"> " + registration.username;
         $("#recipients").append(htmlMessage);
-        registeredUsers.push(registration.userName);
+        registeredUsers.push(registration.username);
     }
 }
 

@@ -49,6 +49,6 @@ function setupGraph() {
         autoungrabify: true
     });
 
-    doLocalTesting();
+    // doLocalTesting();
 
 }
