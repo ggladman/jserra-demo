@@ -6,10 +6,6 @@ public class SendMoneyRequest {
     private String amount;
     private String message;
 
-    public SendMoneyRequest(String message) {
-        this.message = message;
-    }
-
     public String getRecipient() {
         return recipient;
     }

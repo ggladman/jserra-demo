@@ -106,13 +106,13 @@ public class Controller implements MessageListener {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
-        SendMoneyRequest sendMoneyRequest = new SendMoneyRequest(message);
+        SendMoneyRequest sendMoneyRequest = configurator.buildSendMoneyRequest(recipient, amount, message);
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
         nameValuePairs.add(new BasicNameValuePair("sender", getSender()));
-        nameValuePairs.add(new BasicNameValuePair("recipient", recipient));
-        nameValuePairs.add(new BasicNameValuePair("amount", amount));
-        nameValuePairs.add(new BasicNameValuePair("message", configurator.getMessage(sendMoneyRequest)));
+        nameValuePairs.add(new BasicNameValuePair("recipient", sendMoneyRequest.getRecipient()));
+        nameValuePairs.add(new BasicNameValuePair("amount", sendMoneyRequest.getAmount()));
+        nameValuePairs.add(new BasicNameValuePair("message", sendMoneyRequest.getMessage()));
 
         HttpResponseData responseData = postToServer(baseURI + "/sendmoney", nameValuePairs);
 
@@ -137,7 +137,7 @@ public class Controller implements MessageListener {
     private String getSender() {
         String sender = configurator.getTeamName();
 
-        // Use property as default.
+        // Use teamName property if kids return null.
         if (sender == null) {
             sender = teamName;
         }
