@@ -8,7 +8,13 @@ public class Configurator {
         return "Default Team";  // "Superman";
     }
 
-    public String getMessage(SendMoneyRequest sendMoneyRequest) {
-        return null;  //sendMoneyRequest.getMessage();
+    public SendMoneyRequest buildSendMoneyRequest(String recipient, String amount, String message) {
+        SendMoneyRequest sendMoneyRequest = new SendMoneyRequest();
+
+        sendMoneyRequest.setRecipient(recipient);
+        sendMoneyRequest.setAmount(amount);
+        //sendMoneyRequest.setMessage(message);
+
+        return sendMoneyRequest;
     }
 }
