@@ -9,7 +9,7 @@ function setupGraph() {
                 'content': 'data(name)',
                 'color': 'white',
                 'background-color': 'green',
-                'font-size': '48px'
+                'font-size': '60px'
             })
             .selector('edge')
             .css({
@@ -56,7 +56,7 @@ function setupGraph() {
         userPanningEnabled: false,
         autoungrabify: true
     });
-
+    
 //    doLocalTesting();
 
 }
