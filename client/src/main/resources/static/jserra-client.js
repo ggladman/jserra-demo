@@ -11,8 +11,9 @@ function connect() {
         stompClient.subscribe('/topic/receipts', function (receipt) {
             console.log(receipt);
             receiveMessage(JSON.parse(receipt.body));
-        });
+        })
     });
+
     speakText("hello.");
     fadeInRegistration();
 }
@@ -28,7 +29,7 @@ function receiveRegistration(registration) {
         speakText(registration.username + " has logged in.");
         var htmlMessage = "<option value=\"" + registration.username + "\"> " + registration.username;
         $("#recipients").append(htmlMessage);
-        registeredUsers.push(registration.userName);
+        registeredUsers.push(registration.username);
     }
 }
 
@@ -37,7 +38,13 @@ function receiveMessage(receipt) {
         document.getElementById('audio_cashregister').play();
         currBalance = currBalance + Number(receipt.amount);
         updateDisplayedBalance();
-        speakText("You have received $" + receipt.amount + " from " + receipt.sender + ", with the message '" + receipt.message + "'.");
+
+        var messageBlock = receipt.message;
+
+        if(!(messageBlock== null || messageBlock == "")){
+            messageBlock = ", with the message '" + receipt.message + "'";
+        }
+        speakText("You have received $" + receipt.amount + " from " + receipt.sender + messageBlock + ".");
     } else {
         // speakText(receipt.sender + " has sent $" + receipt.amount + " to " + receipt.recipient + ", with the message '" + receipt.message + "'.");
     }
