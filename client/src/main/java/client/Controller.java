@@ -35,6 +35,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,12 +112,17 @@ public class Controller implements MessageListener {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
-        SendMoneyRequest sendMoneyRequest = configurator.buildSendMoneyRequest(recipient, amount, message);
+
+        Number amountNumber = new BigDecimal(amount);
+        SendMoneyRequest sendMoneyRequest = configurator.buildSendMoneyRequest(recipient, amountNumber, message);
+
+        // Round to two decimal places.
+        double amountRounded = Math.round(sendMoneyRequest.getAmount().doubleValue() * 100.0) / 100.0;
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
         nameValuePairs.add(new BasicNameValuePair("sender", getSender()));
         nameValuePairs.add(new BasicNameValuePair("recipient", sendMoneyRequest.getRecipient()));
-        nameValuePairs.add(new BasicNameValuePair("amount", sendMoneyRequest.getAmount()));
+        nameValuePairs.add(new BasicNameValuePair("amount", Double.toString(amountRounded)));
         nameValuePairs.add(new BasicNameValuePair("message", sendMoneyRequest.getMessage()));
 
         HttpResponseData responseData = postToServer(baseURI + "/sendmoney", nameValuePairs);

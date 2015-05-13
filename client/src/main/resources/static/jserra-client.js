@@ -2,13 +2,13 @@
 function connect() {
     var socket = new SockJS('/request');
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, function(frame) {
+    stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/registrations', function(registration){
+        stompClient.subscribe('/topic/registrations', function (registration) {
             console.log(registration);
             receiveRegistration(JSON.parse(registration.body));
         });
-        stompClient.subscribe('/topic/receipts', function(receipt){
+        stompClient.subscribe('/topic/receipts', function (receipt) {
             console.log(receipt);
             receiveMessage(JSON.parse(receipt.body));
         })
@@ -20,10 +20,16 @@ function connect() {
 
 function receiveRegistration(registration) {
     console.log("receiveRegistration()");
+    for (var i = 0; i < registeredUsers.length; i++) {
+        if (registeredUsers[i] == registration.username) {
+            return;
+        }
+    }
     if ((currUsername != "") && (registration.username != currUsername)) {
         speakText(registration.username + " has logged in.");
         var htmlMessage = "<option value=\"" + registration.username + "\"> " + registration.username;
         $("#recipients").append(htmlMessage);
+        registeredUsers.push(registration.userName);
     }
 }
 
@@ -49,22 +55,34 @@ function fadeInRegistration() {
 }
 
 function submitRegistration() {
-    $("#register").fadeOut("slow");
 
-    $.getJSON( "jserra/register", function( data ) {
+    $.getJSON("jserra/register", function (data) {
         currUsername = data.username;
-        speakText("Welcome, " + currUsername + "!");
-        $("#teamname").html(data.username);
-        currBalance = Number(data.balance);
-        $("#balance").html('$' + currBalance.toFixed(2));
 
-        $("#main").fadeIn("slow");
-        // document.getElementById('audio_chime').play();
+        if (currUsername == null || currUsername.trim() == "") {
+            alert("Please configure your team name");
+        } else {
+            $("#register").fadeOut("slow");
 
-        for (var i = 0; i < data.registeredUsers.length; i++) {
-            var registeredUser = data.registeredUsers[i]
-            var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
-            $("#recipients").append(htmlMessage);
+            speakText("Welcome, " + currUsername + "!");
+
+            $("#teamname").html(currUsername);
+            registeredUsers.push(currUsername);
+            currBalance = Number(data.balance);
+            $("#balance").html('$' + currBalance.toFixed(2));
+
+            $("#main").fadeIn("slow");
+            // document.getElementById('audio_chime').play();
+
+            for (var i = 0; i < data.registeredUsers.length; i++) {
+                var registeredUser = data.registeredUsers[i];
+
+                if (registeredUser.username != "" && registeredUser.username != currUsername) {
+                    var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
+                    $("#recipients").append(htmlMessage);
+                    registeredUsers.push(registeredUser.username);
+                }
+            }
         }
     });
 }
@@ -93,7 +111,11 @@ function sendMoney() {
         alert("You must pick a recipient.");
         return;
     }
-    $.post( "jserra/sendmoney", { recipient: userRecipient, amount: userAmountAsNumber, message: userMessage}, function(data) {
+    $.post("jserra/sendmoney", {
+        recipient: userRecipient,
+        amount: userAmountAsNumber,
+        message: userMessage
+    }, function (data) {
         //$("#sendamount").val(Number(data.amount).toFixed(2));
         $("#sendamount").val(Number(data.amount));
         //$("#message").val(data.message);
@@ -131,5 +153,7 @@ window.speechSynthesis.onvoiceschanged = function () {
 var currUsername = "";
 
 var currBalance = 0;
+
+var registeredUsers = new Array();
 
 window.onload = connect;

@@ -1,3 +1,10 @@
+var nodeCount = 0;
+var nodeIds = [];
+var nodeBalances = [];
+
+var cy = null;
+
+var timerMap = {};
 
 function initialize() {
     var socket = new SockJS('/request');
@@ -13,9 +20,42 @@ function initialize() {
             receiveTransfer(JSON.parse(receipt.body));
         });
     });
+
+    $.getJSON("jserra/messageHistory", function (data){
+        loadMessageHistory( data )
+    });
+
+    $.getJSON("jserra/userList", function (data){
+        loadUserList( data )
+    });
     //speakText("the server is online.");
     fadeInMain();
     setupGraph();
+}
+
+
+function loadUserList(userList){
+    //TODO: fill out this stub to load the user list in the browser
+}
+
+function loadMessageHistory(messageHistory){
+    var messagesLength = messageHistory.length;
+    for(var i = 1; i <= messagesLength; i++){
+        var transferMessage = messageHistory[messagesLength-i];
+        //add to messages table
+        var htmlMessage = "<div class='message'>";
+        htmlMessage += "<table>"
+        for (prop in transferMessage) {
+            console.log(prop);
+            console.log(prop + " : " + transferMessage[prop]);
+            htmlMessage += "<tr>"
+            htmlMessage += "<td class='messageproperty'>" + prop + "</td>";
+            htmlMessage += "<td class='messagevalue'>" + transferMessage[prop] + "</td>";
+            htmlMessage += "</tr>";
+        }
+        htmlMessage += "</div>";
+        $("#messages").append(htmlMessage);
+    }
 }
 
 function receiveRegistration(registration) {
@@ -24,23 +64,6 @@ function receiveRegistration(registration) {
 
     // add user to node
     addUser(registration.username, registration.balance);
-}
-
-function testReceiveRegistration(username) {
-    var registrationObj = {};
-    registrationObj.username = username;
-    registrationObj.balance = 100;
-    receiveRegistration(registrationObj);
-}
-
-function testReceiveTransfer(sender, recipient, amount, message) {
-    var transferObj = {};
-    transferObj.sender = sender;
-    transferObj.recipient = recipient;
-    transferObj.amount = amount;
-    transferObj.message = message;
-
-    receiveTransfer(transferObj);
 }
 
 function receiveTransfer(transfer) {
@@ -55,6 +78,7 @@ function receiveTransfer(transfer) {
     $("#recipienttable").find("tr").each(function() {
         var username = $(this).find(".username").html();
         var balance = Number($(this).find(".currbalance").html());
+        console.log(transfer.amount);
         var sendAmount = Number(transfer.amount);
         console.log("username: " + username);
         // decrement the sender's balance
@@ -62,7 +86,7 @@ function receiveTransfer(transfer) {
             console.log("match!");
             var newbalance = balance - sendAmount;
             console.log("new balance = " + newbalance)
-            $(this).find(".currbalance").html(newbalance);
+            $(this).find(".currbalance").html(newbalance.toFixed(2));
 
             updateNodeBalance(username, newbalance);
         }
@@ -90,10 +114,11 @@ function receiveTransfer(transfer) {
         htmlMessage += "</tr>";
     }
     htmlMessage += "</div>";
-    $("#messages").append(htmlMessage);
+    $("#message_list").prepend(htmlMessage);
 
     activateLink(transfer.sender, transfer.recipient, transfer.amount);
 }
+
 
 function fadeInMain() {
     $("#main").fadeIn("slow");
@@ -133,8 +158,10 @@ function addUser(id, balance) {
         }
     }
 
+    cy.load( cy.elements('*').jsons() );
+
     // these seem to be unnecessary... -gg
-    //    cy.load( cy.elements('*').jsons() );
+    //
     //    cy.fit();
 }
 
@@ -153,14 +180,6 @@ function updateNodeBalance(id, balance) {
 function formatLabel(id, balance) {
     return id + ": $" + balance.toFixed(2);
 }
-
-var nodeCount = 0;
-var nodeIds = [];
-var nodeBalances = [];
-
-var cy = null;
-
-var timerMap = {};
 
 function activateLink(idFrom, idTo, amount) {
     var indexFrom = null;
@@ -194,84 +213,13 @@ function activateLink(idFrom, idTo, amount) {
                 timerMap[edgeId] = null;
                 var linkToDeselect = cy.getElementById(edgeId);
                 console.log(linkToDeselect.classes);
+                link.data('name', "");
                 linkToDeselect.removeClass('highlighted');
             }, 5000);
             timerMap[edgeId] = timeout;
 
         }
     }
-}
-
-function doLocalTesting() {
-    addUser("Team A", 100);
-    addUser("Team B", 100);
-    addUser("Team C", 100);
-    addUser("Team D", 100);
-    addUser("Team E", 100);
-
-
-    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 34.99, "3 seconds")}, 3000);
-    setTimeout(function () { testReceiveTransfer('Team B', 'Team C', 15.25, "")}, 8000);
-
-    setTimeout(function () { testReceiveRegistration('Team F')}, 7000);
-
-    setTimeout(function () { testReceiveTransfer('Team E', 'Team D', 12.34, "6 seconds")}, 6000);
-    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 9.95, "12 seconds")}, 12000);
-    setTimeout(function () { testReceiveTransfer('Team C', 'Team F', 42, "12 seconds")}, 12000);
-}
-
-function setupGraph() {
-    cy = cytoscape({
-        container: document.getElementById('recipient_graph'),
-
-        style: cytoscape.stylesheet()
-            .selector('node')
-            .css({
-                'content': 'data(name)',
-                'background-color': 'green',
-                'font-size': '24px'
-            })
-            .selector('edge')
-            .css({
-                'width': 4,
-                'line-color': '#ada',
-                'text-opacity' : 0,
-                'font-size': '36px',
-                'edge-text-rotation': 'autorotate',
-                'content': 'data(name)',
-                'transition-property': 'line-color, width, text-opacity',
-                'transition-duration': '1.0s'
-            })
-            .selector('.highlighted')
-            .css({
-                'text-opacity': 1.0,
-                'width': 16,
-                'line-color': '#61bffc',
-                'transition-property': 'line-color, width, text-opacity',
-                'transition-duration': '1.0s'
-            }),
-
-        elements: {
-            nodes: [],
-            edges: []
-        },
-
-        layout: {
-            name: 'circle',
-            animate: true,
-            animationDuration: 200,
-            padding: 50
-        },
-
-        zoomingEnabled: true,
-        userZoomingEnabled: false,
-        panningEnabled: true,
-        userPanningEnabled: false,
-        autoungrabify: true
-    });
-
-    // doLocalTesting();
-
 }
 
 window.onload = initialize;

@@ -22,12 +22,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
@@ -36,6 +36,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class Controller {
 
     public static final String URI = "/jserra";
+    public static final Integer MESSAGE_QUEUE_SIZE = 2;
 
     @Autowired
     private SimpMessagingTemplate stompTemplate;
@@ -45,7 +46,18 @@ public class Controller {
 
     private List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
-    private Queue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(40);
+    private ArrayBlockingQueue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(MESSAGE_QUEUE_SIZE);
+
+
+    @RequestMapping(value = "/messageHistory", method = GET)
+    public List<SendMoneyResponse> getMessageHistory(HttpServletRequest request) throws Exception {
+        return new ArrayList<SendMoneyResponse>(messageHistoryQueue);
+    }
+
+    @RequestMapping(value = "/userList", method = GET)
+    public List<RegisteredUser> getUserList(HttpServletRequest request) throws Exception {
+        return registeredUsers;
+    }
 
     @ResponseBody
     @RequestMapping(method = POST,
@@ -59,7 +71,9 @@ public class Controller {
 
         Boolean isNewUser = false;
         RegisteredUser userMatch = findUserByName(username);
+        System.out.println("usermatch " + userMatch);
         if (userMatch == null) {
+            System.out.println("new user " + username);
             RegisteredUser newUser = new RegisteredUser();
             newUser.setUsername(username);
             newUser.setBalance(new BigDecimal(defaultBalance));
@@ -112,7 +126,9 @@ public class Controller {
         sendMoneyResponse.setAmount(amount);
         sendMoneyResponse.setMessage(message);
 
-
+        if(messageHistoryQueue.size() == MESSAGE_QUEUE_SIZE) {
+            messageHistoryQueue.remove();
+        }
         messageHistoryQueue.add(sendMoneyResponse);
 
         String destination = "/topic/receipts";
