@@ -194,6 +194,7 @@ function activateLink(idFrom, idTo, amount) {
                 timerMap[edgeId] = null;
                 var linkToDeselect = cy.getElementById(edgeId);
                 console.log(linkToDeselect.classes);
+                link.data('name', "");
                 linkToDeselect.removeClass('highlighted');
             }, 5000);
             timerMap[edgeId] = timeout;
