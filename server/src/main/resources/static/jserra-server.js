@@ -35,12 +35,16 @@ function initialize() {
 
 
 function loadUserList(userList){
-    //TODO: fill out this stub to load the user list in the browser
+    var userListLength = userList.length;
+    for (var i = 0; i < userListLength; i++) {
+        var userData = userList[i];
+        addUser(userData.username, userData.balance);
+    }
 }
 
 function loadMessageHistory(messageHistory){
     var messagesLength = messageHistory.length;
-    for(var i = 1; i <= messagesLength; i++){
+    for (var i = 1; i <= messagesLength; i++) {
         var transferMessage = messageHistory[messagesLength-i];
         //add to messages table
         var htmlMessage = "<div class='message'>";
