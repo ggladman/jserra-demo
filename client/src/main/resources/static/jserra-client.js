@@ -100,6 +100,10 @@ function sendMoney() {
     }
     userAmountAsNumber = Number(userAmountAsNumber).toFixed(2);
 
+    if (userAmountAsNumber <= 0) {
+        alert("Crime doesn't pay!!");
+        return;
+    }
     if (userAmountAsNumber > currBalance) {
         alert("You don't have that much money.");
         return;
