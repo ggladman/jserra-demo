@@ -20,7 +20,6 @@ import server.model.SendMoneyResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -106,11 +105,10 @@ public class Controller {
                                        @RequestParam(value = "amount") final String amount,
                                        @RequestParam(value = "message") final String message,
                                        HttpServletRequest request) throws Exception {
-        final BigDecimal amountDecimal = new BigDecimal(amount);
         System.out.println("received SENDMONEY request:");
         System.out.println("    sender = " + sender);
         System.out.println("    recipient = " + recipient);
-        System.out.println("    amount = " + amountDecimal);
+        System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
         RegisteredUser registeredUserSender = findUserByName(sender);
@@ -124,7 +122,7 @@ public class Controller {
         SendMoneyResponse sendMoneyResponse = new SendMoneyResponse();
         sendMoneyResponse.setSender(sender);
         sendMoneyResponse.setRecipient(recipient);
-        sendMoneyResponse.setAmount(NumberFormat.getCurrencyInstance().format(amountDecimal));
+        sendMoneyResponse.setAmount(amount);
         sendMoneyResponse.setMessage(message);
 
         if(messageHistoryQueue.size() == MESSAGE_QUEUE_SIZE) {
