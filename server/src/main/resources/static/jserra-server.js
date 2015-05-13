@@ -13,9 +13,16 @@ function initialize() {
             receiveTransfer(JSON.parse(receipt.body));
         });
     });
+    $.getJSON('jserra/messageHistory', loadMessageHistory( data ))
     //speakText("the server is online.");
     fadeInMain();
     setupGraph();
+}
+
+function loadMessageHistory(messageHistory){
+    for(message in messageHistory){
+        //add to messages table
+    }
 }
 
 function receiveRegistration(registration) {
