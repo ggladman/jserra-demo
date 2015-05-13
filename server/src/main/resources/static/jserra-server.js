@@ -186,7 +186,7 @@ function activateLink(idFrom, idTo, amount) {
         }
         var link = cy.getElementById(edgeId);
         if (link != null) {
-            link.data('name', "$" + amount.toFixed(2));
+            link.data('name', "$" + Number(amount).toFixed(2));
             link.addClass('highlighted');
 
             var timeout = setTimeout(function() {
