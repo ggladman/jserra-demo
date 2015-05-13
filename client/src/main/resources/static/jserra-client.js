@@ -19,10 +19,16 @@ function connect() {
 
 function receiveRegistration(registration) {
     console.log("receiveRegistration()");
+    for (var i = 0; i < registeredUsers.length; i++) {
+        if (registeredUsers[i] == registration.username) {
+            return;
+        }
+    }
     if ((currUsername != "") && (registration.username != currUsername)) {
         speakText(registration.username + " has logged in.");
         var htmlMessage = "<option value=\"" + registration.username + "\"> " + registration.username;
         $("#recipients").append(htmlMessage);
+        registeredUsers.push(registration.userName);
     }
 }
 
@@ -54,18 +60,20 @@ function submitRegistration() {
             speakText("Welcome, " + currUsername + "!");
 
             $("#teamname").html(currUsername);
-            currBalance = data.balance;
+            registeredUsers.push(currUsername);
+            currBalance = Number(data.balance);
             $("#balance").html('$' + currBalance.toFixed(2));
 
             $("#main").fadeIn("slow");
             // document.getElementById('audio_chime').play();
 
             for (var i = 0; i < data.registeredUsers.length; i++) {
-                var registeredUser = data.registeredUsers[i]
+                var registeredUser = data.registeredUsers[i];
 
                 if (registeredUser.username != "" && registeredUser.username != currUsername) {
                     var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
                     $("#recipients").append(htmlMessage);
+                    registeredUsers.push(registeredUser);
                 }
             }
         }
@@ -138,5 +146,7 @@ window.speechSynthesis.onvoiceschanged = function () {
 var currUsername = "";
 
 var currBalance = 0;
+
+var registeredUsers = new Array();
 
 window.onload = connect;
