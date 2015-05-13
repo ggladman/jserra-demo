@@ -36,7 +36,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class Controller {
 
     public static final String URI = "/jserra";
-    public static final Integer MESSAGE_QUEUE_SIZE = 2;
+    public static final Integer MESSAGE_QUEUE_SIZE = 40;
 
     @Autowired
     private SimpMessagingTemplate stompTemplate;
