@@ -53,6 +53,12 @@ function submitRegistration() {
 
         $("#main").fadeIn("slow");
         // document.getElementById('audio_chime').play();
+
+        for (var i = 0; i < data.registeredUsers.length; i++) {
+            var registeredUser = data.registeredUsers[i]
+            var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
+            $("#recipients").append(htmlMessage);
+        }
     });
 }
 
@@ -64,9 +70,11 @@ function sendMoney() {
     }
     var userAmountAsNumber = Number(userAmountAsString);
     if (isNaN(userAmountAsNumber)) {
-        alert("WTF!? That's not a number!")
+        alert("Oops! That's not a number!")
         return;
     }
+    userAmountAsNumber = Number(userAmountAsNumber).toFixed(2);
+
     if (userAmountAsNumber > currBalance) {
         alert("You don't have that much money.");
         return;
@@ -79,8 +87,9 @@ function sendMoney() {
         return;
     }
     $.post( "jserra/sendmoney", { recipient: userRecipient, amount: userAmountAsNumber, message: userMessage}, function(data) {
-        $("#sendamount").val(Number(data.amount).toFixed(2));
-        $("#message").val(data.message);
+        //$("#sendamount").val(Number(data.amount).toFixed(2));
+        $("#sendamount").val(Number(data.amount));
+        //$("#message").val(data.message);
         $("#recipients").val(data.recipient);
 
         currBalance -= data.amount;

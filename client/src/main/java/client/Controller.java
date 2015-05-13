@@ -2,6 +2,7 @@ package client;
 
 import client.model.HttpResponseData;
 import client.model.RegistrationResponse;
+import client.model.SendMoneyRequest;
 import client.model.SendMoneyResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
@@ -71,8 +72,6 @@ public class Controller implements MessageListener {
 
     @PostConstruct
     private void PostConstruction() {
-        configurator.configureController(this);
-
         try {
             setupRabbitListener();
         } catch (IOException e) {
@@ -85,7 +84,7 @@ public class Controller implements MessageListener {
         System.out.println("received REGISTER request from webapp.");
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-        nameValuePairs.add(new BasicNameValuePair("username", teamName));
+        nameValuePairs.add(new BasicNameValuePair("username", getSender()));
 
         HttpResponseData responseData = postToServer(baseURI + "/register", nameValuePairs);
 
@@ -107,11 +106,13 @@ public class Controller implements MessageListener {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
+        SendMoneyRequest sendMoneyRequest = configurator.buildSendMoneyRequest(recipient, amount, message);
+
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-        nameValuePairs.add(new BasicNameValuePair("sender", teamName));
-        nameValuePairs.add(new BasicNameValuePair("recipient", recipient));
-        nameValuePairs.add(new BasicNameValuePair("amount", amount));
-        nameValuePairs.add(new BasicNameValuePair("message", message));
+        nameValuePairs.add(new BasicNameValuePair("sender", getSender()));
+        nameValuePairs.add(new BasicNameValuePair("recipient", sendMoneyRequest.getRecipient()));
+        nameValuePairs.add(new BasicNameValuePair("amount", sendMoneyRequest.getAmount()));
+        nameValuePairs.add(new BasicNameValuePair("message", sendMoneyRequest.getMessage()));
 
         HttpResponseData responseData = postToServer(baseURI + "/sendmoney", nameValuePairs);
 
@@ -131,6 +132,17 @@ public class Controller implements MessageListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String getSender() {
+        String sender = configurator.getTeamName();
+
+        // Use teamName property if kids return null.
+        if (sender == null) {
+            sender = teamName;
+        }
+
+        return sender;
     }
 
     private void processRabbitMessage(JSONObject jsonObject) throws IOException {

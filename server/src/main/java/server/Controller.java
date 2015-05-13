@@ -22,6 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -42,13 +45,15 @@ public class Controller {
 
     private List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
+    private Queue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(40);
+
     @ResponseBody
     @RequestMapping(method = POST,
             value = "/register",
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE)
     public RegistrationResponse register(@RequestParam(value = "username") final String username,
-                                       HttpServletRequest request) throws Exception {
+                                         HttpServletRequest request) throws Exception {
         System.out.println("received REGISTER request:");
         System.out.println("    username = " + username);
 
@@ -66,6 +71,7 @@ public class Controller {
         RegistrationResponse registrationResponse = new RegistrationResponse();
         registrationResponse.setUsername(userMatch.getUsername());
         registrationResponse.setBalance(userMatch.getBalance());
+        registrationResponse.setRegisteredUsers(registeredUsers);
 
         if (isNewUser) {
             String destination = "/topic/registrations";
@@ -105,6 +111,9 @@ public class Controller {
         sendMoneyResponse.setRecipient(recipient);
         sendMoneyResponse.setAmount(amount);
         sendMoneyResponse.setMessage(message);
+
+
+        messageHistoryQueue.add(sendMoneyResponse);
 
         String destination = "/topic/receipts";
         stompTemplate.convertAndSend(destination, sendMoneyResponse);

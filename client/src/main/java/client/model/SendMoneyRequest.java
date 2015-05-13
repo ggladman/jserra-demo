@@ -1,6 +1,6 @@
 package client.model;
 
-public class SendMoneyMessage {
+public class SendMoneyRequest {
 
     private String recipient;
     private String amount;
@@ -26,7 +26,7 @@ public class SendMoneyMessage {
         return message;
     }
 
-    public void setMessage(final String message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 }

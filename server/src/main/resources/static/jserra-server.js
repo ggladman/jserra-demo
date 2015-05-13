@@ -45,8 +45,12 @@ function testReceiveTransfer(sender, recipient, amount, message) {
 
 function receiveTransfer(transfer) {
     console.log(transfer);
-
-    speakText(transfer.sender + " has sent $" + transfer.amount + " to " + transfer.recipient + ", with the message '" + transfer.message + "'.");
+    var messageBlock = transfer.message;
+    
+    if(!(messageBlock== null || messageBlock == "")){
+        messageBlock = ", with the message '" + transfer.message + "'";
+    }
+    speakText(transfer.sender + " has sent $" + transfer.amount + " to " + transfer.recipient + messageBlock + ".");
 
     $("#recipienttable").find("tr").each(function() {
         var username = $(this).find(".username").html();
@@ -155,25 +159,6 @@ var cy = null;
 
 var timerMap = {};
 
-function addTestUsers() {
-    addUser("Team A", 100);
-    addUser("Team B", 100);
-    addUser("Team C", 100);
-    addUser("Team D", 100);
-    addUser("Team E", 100);
-
-
-    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 34.99, "3 seconds")}, 3000);
-    setTimeout(function () { testReceiveTransfer('Team B', 'Team C', 15.25, "8 seconds")}, 8000);
-
-    setTimeout(function () { testReceiveRegistration('Team F')}, 7000);
-
-    setTimeout(function () { testReceiveTransfer('Team E', 'Team D', 12.34, "6 seconds")}, 6000);
-    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 9.95, "12 seconds")}, 12000);
-    setTimeout(function () { testReceiveTransfer('Team C', 'Team F', 42, "12 seconds")}, 12000);
-
-}
-
 function activateLink(idFrom, idTo, amount) {
     var indexFrom = null;
     var indexTo = null;
@@ -212,6 +197,24 @@ function activateLink(idFrom, idTo, amount) {
 
         }
     }
+}
+
+function doLocalTesting() {
+    addUser("Team A", 100);
+    addUser("Team B", 100);
+    addUser("Team C", 100);
+    addUser("Team D", 100);
+    addUser("Team E", 100);
+
+
+    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 34.99, "3 seconds")}, 3000);
+    setTimeout(function () { testReceiveTransfer('Team B', 'Team C', 15.25, "")}, 8000);
+
+    setTimeout(function () { testReceiveRegistration('Team F')}, 7000);
+
+    setTimeout(function () { testReceiveTransfer('Team E', 'Team D', 12.34, "6 seconds")}, 6000);
+    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 9.95, "12 seconds")}, 12000);
+    setTimeout(function () { testReceiveTransfer('Team C', 'Team F', 42, "12 seconds")}, 12000);
 }
 
 function setupGraph() {
@@ -264,7 +267,7 @@ function setupGraph() {
         autoungrabify: true
     });
 
-    // addTestUsers();
+    doLocalTesting();
 
 }
 

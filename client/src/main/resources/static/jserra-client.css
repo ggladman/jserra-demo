@@ -55,7 +55,7 @@ body {
     padding-left: 12pt;
     padding-right: 12pt;
     text-align: center;
-    background-color: #37982c;
+    background-color: white;
 }
 
 #recipients option:checked {
