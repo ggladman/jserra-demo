@@ -27,6 +27,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
@@ -44,7 +45,18 @@ public class Controller {
 
     private List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
-    private Queue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(40);
+    private Queue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(2);
+
+
+    @RequestMapping(value = "/messageHistory", method = GET)
+    public List<SendMoneyResponse> getMessageHistory(HttpServletRequest request) throws Exception {
+        return new ArrayList<SendMoneyResponse>(messageHistoryQueue);
+    }
+
+    @RequestMapping(value = "/userList", method = GET)
+    public List<RegisteredUser> getUserList(HttpServletRequest request) throws Exception {
+        return registeredUsers;
+    }
 
     @ResponseBody
     @RequestMapping(method = POST,
