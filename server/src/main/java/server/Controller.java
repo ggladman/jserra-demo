@@ -36,6 +36,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class Controller {
 
     public static final String URI = "/jserra";
+    public static final Integer MESSAGE_QUEUE_SIZE = 2;
 
     @Autowired
     private SimpMessagingTemplate stompTemplate;
@@ -45,7 +46,7 @@ public class Controller {
 
     private List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
-    private Queue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(2);
+    private ArrayBlockingQueue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(MESSAGE_QUEUE_SIZE);
 
 
     @RequestMapping(value = "/messageHistory", method = GET)
@@ -125,7 +126,9 @@ public class Controller {
         sendMoneyResponse.setAmount(amount);
         sendMoneyResponse.setMessage(message);
 
-
+        if(messageHistoryQueue.size() == MESSAGE_QUEUE_SIZE) {
+            messageHistoryQueue.remove();
+        }
         messageHistoryQueue.add(sendMoneyResponse);
 
         String destination = "/topic/receipts";

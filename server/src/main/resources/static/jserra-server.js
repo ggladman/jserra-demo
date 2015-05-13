@@ -39,8 +39,9 @@ function loadUserList(userList){
 }
 
 function loadMessageHistory(messageHistory){
-    for(var i = 0; i < messageHistory.length; i++){
-        var transferMessage = messageHistory[i];
+    var messagesLength = messageHistory.length;
+    for(var i = 1; i <= messagesLength; i++){
+        var transferMessage = messageHistory[messagesLength-i];
         //add to messages table
         var htmlMessage = "<div class='message'>";
         htmlMessage += "<table>"
