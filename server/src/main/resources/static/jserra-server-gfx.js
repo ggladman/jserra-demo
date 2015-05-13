@@ -56,7 +56,7 @@ function setupGraph() {
         userPanningEnabled: false,
         autoungrabify: true
     });
-
-    // doLocalTesting();
+    
+//    doLocalTesting();
 
 }
