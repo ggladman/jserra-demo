@@ -70,7 +70,7 @@ function sendMoney() {
     }
     var userAmountAsNumber = Number(userAmountAsString);
     if (isNaN(userAmountAsNumber)) {
-        alert("WTF!? That's not a number!")
+        alert("Oops! That's not a number!")
         return;
     }
     userAmountAsNumber = Number(userAmountAsNumber).toFixed(2);
