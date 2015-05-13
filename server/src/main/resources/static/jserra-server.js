@@ -13,15 +13,39 @@ function initialize() {
             receiveTransfer(JSON.parse(receipt.body));
         });
     });
-    $.getJSON('jserra/messageHistory', loadMessageHistory( data ))
+    $.getJSON("jserra/messageHistory", function (data){
+        loadMessageHistory( data )
+    });
+
+    $.getJSON("jserra/userList", function (data){
+        loadUserList( data )
+    });
     //speakText("the server is online.");
     fadeInMain();
     setupGraph();
 }
 
+
+function loadUserList(userList){
+    //TODO: fill out this stub to load the user list in the browser
+}
+
 function loadMessageHistory(messageHistory){
-    for(message in messageHistory){
+    for(var i = 0; i < messageHistory.length; i++){
+        var transferMessage = messageHistory[i];
         //add to messages table
+        var htmlMessage = "<div class='message'>";
+        htmlMessage += "<table>"
+        for (prop in transferMessage) {
+            console.log(prop);
+            console.log(prop + " : " + transferMessage[prop]);
+            htmlMessage += "<tr>"
+            htmlMessage += "<td class='messageproperty'>" + prop + "</td>";
+            htmlMessage += "<td class='messagevalue'>" + transferMessage[prop] + "</td>";
+            htmlMessage += "</tr>";
+        }
+        htmlMessage += "</div>";
+        $("#messages").append(htmlMessage);
     }
 }
 
@@ -101,6 +125,7 @@ function receiveTransfer(transfer) {
 
     activateLink(transfer.sender, transfer.recipient, transfer.amount);
 }
+
 
 function fadeInMain() {
     $("#main").fadeIn("slow");
