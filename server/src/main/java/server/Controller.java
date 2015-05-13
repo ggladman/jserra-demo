@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -59,7 +58,9 @@ public class Controller {
 
         Boolean isNewUser = false;
         RegisteredUser userMatch = findUserByName(username);
+        System.out.println("usermatch " + userMatch);
         if (userMatch == null) {
+            System.out.println("new user " + username);
             RegisteredUser newUser = new RegisteredUser();
             newUser.setUsername(username);
             newUser.setBalance(new BigDecimal(defaultBalance));

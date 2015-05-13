@@ -73,7 +73,7 @@ function submitRegistration() {
                 if (registeredUser.username != "" && registeredUser.username != currUsername) {
                     var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
                     $("#recipients").append(htmlMessage);
-                    registeredUsers.push(registeredUser);
+                    registeredUsers.push(registeredUser.username);
                 }
             }
         }
