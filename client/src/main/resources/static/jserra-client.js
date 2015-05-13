@@ -56,12 +56,12 @@ function fadeInRegistration() {
 
 function submitRegistration() {
 
-    if (currUsername == null || currUsername.trim() == "") {
-        alert("Please configure your team name");
-    } else {
-        $.getJSON("jserra/register", function (data) {
-            currUsername = data.username;
+    $.getJSON("jserra/register", function (data) {
+        currUsername = data.username;
 
+        if (currUsername == null || currUsername.trim() == "") {
+            alert("Please configure your team name");
+        } else {
             $("#register").fadeOut("slow");
 
             speakText("Welcome, " + currUsername + "!");
@@ -83,8 +83,8 @@ function submitRegistration() {
                     registeredUsers.push(registeredUser.username);
                 }
             }
-        });
-    }
+        }
+    });
 }
 
 function sendMoney() {
