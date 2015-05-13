@@ -19,10 +19,16 @@ function connect() {
 
 function receiveRegistration(registration) {
     console.log("receiveRegistration()");
+    for (var i = 0; i < registeredUsers.length; i++) {
+        if (registeredUsers[i] == registration.username) {
+            return;
+        }
+    }
     if ((currUsername != "") && (registration.username != currUsername)) {
         speakText(registration.username + " has logged in.");
         var htmlMessage = "<option value=\"" + registration.username + "\"> " + registration.username;
         $("#recipients").append(htmlMessage);
+        registeredUsers.push(registration.userName);
     }
 }
 
@@ -46,6 +52,7 @@ function submitRegistration() {
 
     $.getJSON( "jserra/register", function( data ) {
         currUsername = data.username;
+        registeredUsers.push(currUsername);
         speakText("Welcome, " + currUsername + "!");
         $("#teamname").html(data.username);
         currBalance = Number(data.balance);
@@ -55,9 +62,12 @@ function submitRegistration() {
         // document.getElementById('audio_chime').play();
 
         for (var i = 0; i < data.registeredUsers.length; i++) {
-            var registeredUser = data.registeredUsers[i]
-            var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
-            $("#recipients").append(htmlMessage);
+            var registeredUser = data.registeredUsers[i];
+            if ((currUsername != "") && (registration.username != currUsername)) {
+                var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
+                $("#recipients").append(htmlMessage);
+                registeredUsers.push(registeredUser);
+            }
         }
     });
 }
@@ -124,5 +134,7 @@ window.speechSynthesis.onvoiceschanged = function () {
 var currUsername = "";
 
 var currBalance = 0;
+
+var registeredUsers = new Array();
 
 window.onload = connect;
