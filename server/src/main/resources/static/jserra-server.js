@@ -62,7 +62,7 @@ function receiveTransfer(transfer) {
             console.log("match!");
             var newbalance = balance + sendAmount;
             console.log("new balance = " + newbalance)
-            $(this).find(".currbalance").html(newbalance);
+            $(this).find(".currbalance").html(newbalance.toFixed(2));
 
             updateNodeBalance(username, newbalance);
         }
