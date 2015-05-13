@@ -9,12 +9,13 @@ body {
     display: none;
     margin-left: auto;
     margin-right: auto;
-    width: 50%;
+    width: 90%;
 }
 #recipienttable {
     width: 100%;
 }
 #recipient_list {
+    display: none;
     margin-top: 10pt;
     margin-right: 2.5%;
     font-size: 24pt;
@@ -32,13 +33,22 @@ body {
 .currbalance {
     text-align: right;
 }
+
+#recipient_graph {
+    float: left;
+    width: 800px;
+    height: 800px;
+    margin: 100px;
+}
+
 #messages {
-    margin-top: 10pt;
+    margin-top: 20px;
     margin-left: 2.5%;
     font-size: 24pt;
     background-color: forestgreen;
-    width: 45%;
-    float: left;
+    width: 30%;
+    height:95%;
+    float: right;
 }
 .message {
     background-color: rgba(255,255,255,0.3);
