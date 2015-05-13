@@ -13,7 +13,7 @@ public class Configurator {
 
         sendMoneyRequest.setRecipient(recipient);
         sendMoneyRequest.setAmount(amount);
-        sendMoneyRequest.setMessage(message);
+        //sendMoneyRequest.setMessage(message);
 
         return sendMoneyRequest;
     }
