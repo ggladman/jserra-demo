@@ -45,6 +45,7 @@ function receiveTransfer(transfer) {
     $("#recipienttable").find("tr").each(function() {
         var username = $(this).find(".username").html();
         var balance = Number($(this).find(".currbalance").html());
+        console.log(transfer.amount);
         var sendAmount = Number(transfer.amount);
         console.log("username: " + username);
         // decrement the sender's balance
@@ -52,7 +53,7 @@ function receiveTransfer(transfer) {
             console.log("match!");
             var newbalance = balance - sendAmount;
             console.log("new balance = " + newbalance)
-            $(this).find(".currbalance").html(newbalance);
+            $(this).find(".currbalance").html(newbalance.toFixed(2));
 
             updateNodeBalance(username, newbalance);
         }
@@ -80,7 +81,7 @@ function receiveTransfer(transfer) {
         htmlMessage += "</tr>";
     }
     htmlMessage += "</div>";
-    $("#messages").append(htmlMessage);
+    $("#message_list").prepend(htmlMessage);
 
     activateLink(transfer.sender, transfer.recipient, transfer.amount);
 }
@@ -123,8 +124,10 @@ function addUser(id, balance) {
         }
     }
 
+    cy.load( cy.elements('*').jsons() );
+
     // these seem to be unnecessary... -gg
-    //    cy.load( cy.elements('*').jsons() );
+    //
     //    cy.fit();
 }
 

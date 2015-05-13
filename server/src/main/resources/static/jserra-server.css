@@ -15,13 +15,13 @@ body {
     width: 100%;
 }
 #recipient_list {
-    display: none;
+    /* display: none; */
     margin-top: 10pt;
-    margin-right: 2.5%;
     font-size: 24pt;
     background-color: forestgreen;
-    width: 45%;
-    float: left;
+    width: 30%;
+    height: 400px;
+    float: right;
 }
 .recipient {
     font-size: 24pt;
@@ -36,9 +36,9 @@ body {
 
 #recipient_graph {
     float: left;
-    width: 800px;
-    height: 800px;
-    margin: 100px;
+    width: 1000px;
+    height: 1000px;
+    margin: 50px;
 }
 
 #messages {
@@ -47,8 +47,10 @@ body {
     font-size: 24pt;
     background-color: forestgreen;
     width: 30%;
-    height:95%;
+    height: 515px;
+    clear: right;
     float: right;
+    overflow-y: scroll;
 }
 .message {
     background-color: rgba(255,255,255,0.3);
