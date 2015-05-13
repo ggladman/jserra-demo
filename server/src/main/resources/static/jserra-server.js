@@ -30,7 +30,7 @@ function receiveRegistration(registration) {
 function receiveMessage(receipt) {
     console.log(receipt);
     var messageBlock = receipt.message;
-
+    
     if(!(messageBlock== null || messageBlock == "")){
         messageBlock = ", with the message '" + receipt.message + "'";
     }
