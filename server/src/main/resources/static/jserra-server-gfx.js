@@ -7,15 +7,16 @@ function setupGraph() {
             .selector('node')
             .css({
                 'content': 'data(name)',
+                'color': 'white',
                 'background-color': 'green',
-                'font-size': '24px'
+                'font-size': '60px'
             })
             .selector('edge')
             .css({
                 'width': 4,
-                'line-color': '#ada',
+                'line-color': '#8b8',
                 'text-opacity' : 0,
-                'font-size': '36px',
+                'font-size': '48px',
                 'edge-text-rotation': 'autorotate',
                 'content': 'data(name)',
                 'transition-property': 'line-color, width, text-opacity',
@@ -28,6 +29,13 @@ function setupGraph() {
                 'line-color': '#61bffc',
                 'transition-property': 'line-color, width, text-opacity',
                 'transition-duration': '1.0s'
+            })
+            .selector('.newnode')
+            .css({
+                'text-opacity': 1.0,
+                'background-color': 'red',
+                'transition-property': 'background-color',
+                'transition-duration': '2.0s'
             }),
 
         elements: {

@@ -15,16 +15,17 @@ body {
     width: 100%;
 }
 #recipient_list {
-    display: none;
+    /* display: none; */
     margin-top: 10pt;
-    margin-right: 2.5%;
     font-size: 24pt;
     background-color: forestgreen;
-    width: 45%;
-    float: left;
+    width: 30%;
+    height: 550px;
+    float: right;
+    overflow-y: scroll;
 }
 .recipient {
-    font-size: 24pt;
+    font-size: 36pt;
     width: 100%;
 }
 .username {
@@ -36,25 +37,27 @@ body {
 
 #recipient_graph {
     float: left;
-    width: 800px;
-    height: 800px;
-    margin: 100px;
+    width: 1400px;
+    height: 1400px;
+    margin: 50px;
 }
 
 #messages {
-    margin-top: 20px;
+    margin-top: 50px;
     margin-left: 2.5%;
     font-size: 24pt;
     background-color: forestgreen;
     width: 30%;
-    height:95%;
+    height: 750px;
+    clear: right;
     float: right;
+    overflow-y: scroll;
 }
 .message {
     background-color: rgba(255,255,255,0.3);
     width: 92%;
     margin: 2%;
-    font-size: 16pt;
+    font-size: 24pt;
     padding: 2%;
 }
 .messageproperty {

@@ -12,7 +12,6 @@ function testReceiveTransfer(sender, recipient, amount, message) {
     transferObj.recipient = recipient;
     transferObj.amount = amount;
     transferObj.message = message;
-
     receiveTransfer(transferObj);
 }
 
@@ -30,6 +29,12 @@ function doLocalTesting() {
     setTimeout(function () { testReceiveRegistration('Team F')}, 7000);
 
     setTimeout(function () { testReceiveTransfer('Team E', 'Team D', 12.34, "6 seconds")}, 6000);
-    setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 9.95, "12 seconds")}, 12000);
-    setTimeout(function () { testReceiveTransfer('Team C', 'Team F', 42, "12 seconds")}, 12000);
+
+    // setTimeout(function () { testReceiveTransfer('Team A', 'Team B', 9.95, "12 seconds")}, 12000);
+    // setTimeout(function () { testReceiveTransfer('Team C', 'Team F', 42, "12 seconds")}, 12000);
+
+    setTimeout(function () { testReceiveRegistration('Team G')}, 10000);
+    setTimeout(function () { testReceiveRegistration('Team H')}, 15000);
+
+    setTimeout(function () { testReceiveTransfer('Team G', 'Team H', 56.78, "20 seconds")}, 20000);
 }
