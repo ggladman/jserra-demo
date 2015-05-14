@@ -111,8 +111,8 @@ function receiveTransfer(transfer) {
     htmlMessage += "<table>"
     for (prop in transfer) {
         var value = transfer[prop];
-        if (prop == amount) {
-            value = Number(value).toFixed(2);
+        if (prop == "amount") {
+            value = "$" + Number(value).toFixed(2);
         }
         console.log(prop);
         console.log(prop + " : " + transfer[prop]);
