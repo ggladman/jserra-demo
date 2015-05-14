@@ -1,11 +1,3 @@
-var nodeCount = 0;
-var nodeIds = [];
-var nodeBalances = [];
-
-var cy = null;
-
-var timerMap = {};
-
 function initialize() {
     var socket = new SockJS('/request');
     stompClient = Stomp.over(socket);
@@ -28,15 +20,22 @@ function initialize() {
     $.getJSON("jserra/userList", function (data){
         loadUserList( data )
     });
-    //speakText("the server is online.");
+
+    speakText("the server is online.");
+
     fadeInMain();
     setupGraph();
 }
 
-
 function loadUserList(userList){
-    console.log()
-    //TODO: fill out this stub to load the user list in the browser
+    console.log("USERLIST: " + userList);
+    var userListLength = userList.length;
+    for(var i = 0; i < userListLength; i++) {
+        var userData = userList[i];
+        var username = userData.username;
+        var balance = userData.balance;
+        addUser(username, balance);
+    }
 }
 
 function loadMessageHistory(messageHistory){
@@ -63,7 +62,7 @@ function receiveRegistration(registration) {
     document.getElementById('audio_chime').play();
     console.log("***** REGISTRATION: " + registration);
 
-    // add user to node
+    // add user to list and graph
     addUser(registration.username, registration.balance);
 }
 
@@ -124,7 +123,6 @@ function receiveTransfer(transfer) {
     activateLink(transfer.sender, transfer.recipient, transfer.amount);
 }
 
-
 function fadeInMain() {
     $("#main").fadeIn("slow");
 }
@@ -138,93 +136,13 @@ function speakText(textToSpeak) {
 }
 
 function addUser(id, balance) {
-    nodeIds.push(id);
-    nodeBalances.push(balance);
-    var label = formatLabel(id, balance);
-    nodeCount++;
-
     var htmlMessage = "<tr class='recipient'>";
     htmlMessage += "<td class='username'>" + id + "</td>";
     htmlMessage += "<td class='currbalance'>" + balance.toFixed(2) + "</td>";
     htmlMessage += "</tr>"
     $("#recipienttable").append(htmlMessage);
 
-    cy.add([
-        { group: "nodes", data: { id: id, name: label }, position: { x: (cy.width() / 2), y: (cy.height() / 2) }, classes: 'animedge' },
-    ]);
-
-    if (nodeCount > 1) {
-        for (linkNode = 0; linkNode < (nodeCount - 1); linkNode++) {
-
-            var edgeId = 'edge_' + (nodeCount-1) + '_' + linkNode;
-            cy.add([
-                { group: "edges", data: { id: edgeId, name: edgeId, source: id, target: nodeIds[linkNode] } }
-            ]);
-        }
-    }
-
-    cy.load( cy.elements('*').jsons() );
-
-    // these seem to be unnecessary... -gg
-    //
-    //    cy.fit();
-}
-
-function updateNodeBalance(id, balance) {
-    if (id === null) {
-        return;
-    }
-    for (i = 0 ; i < nodeCount; i++) {
-        if (nodeIds[i] == id) {
-            var elem = cy.getElementById(id);
-            elem.data('name', formatLabel(id, balance));
-        }
-    }
-}
-
-function formatLabel(id, balance) {
-    return id + ": $" + balance.toFixed(2);
-}
-
-function activateLink(idFrom, idTo, amount) {
-    var indexFrom = null;
-    var indexTo = null;
-
-    for (i = 0; i < nodeCount; i++) {
-        var nodeId = nodeIds[i];
-        if (nodeId == idFrom) {
-            indexFrom = i;
-        }
-        if (nodeId == idTo) {
-            indexTo = i;
-        }
-    }
-    if ((indexFrom != null) && (indexTo != null)) {
-        var idHigh = Math.max(indexFrom, indexTo);
-        var idLow  = Math.min(indexFrom, indexTo);
-        var edgeId = "edge_" + idHigh + "_" + idLow;
-
-        if (timerMap[edgeId] != null) {
-            clearTimeout(timerMap[edgeId]);
-            timerMap[edgeId] = null;
-        }
-        var link = cy.getElementById(edgeId);
-        if (link != null) {
-            link.data('name', "$" + Number(amount).toFixed(2));
-            link.addClass('highlighted');
-
-            var timeout = setTimeout(function() {
-                console.log("link highlight timeout: " + edgeId);
-                timerMap[edgeId] = null;
-                var linkToDeselect = cy.getElementById(edgeId);
-                console.log(linkToDeselect.classes);
-                link.data('name', "");
-                linkToDeselect.removeClass('highlighted');
-            }, 5000);
-            timerMap[edgeId] = timeout;
-
-        }
-    }
+    addNode(id, balance);
 }
 
 window.onload = initialize;
