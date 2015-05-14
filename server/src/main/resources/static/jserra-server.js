@@ -110,11 +110,15 @@ function receiveTransfer(transfer) {
     var htmlMessage = "<div class='message'>";
     htmlMessage += "<table>"
     for (prop in transfer) {
+        var value = transfer[prop];
+        if (prop == amount) {
+            value = Number(value).toFixed(2);
+        }
         console.log(prop);
         console.log(prop + " : " + transfer[prop]);
         htmlMessage += "<tr>"
         htmlMessage += "<td class='messageproperty'>" + prop + "</td>";
-        htmlMessage += "<td class='messagevalue'>" + transfer[prop] + "</td>";
+        htmlMessage += "<td class='messagevalue'>" + value + "</td>";
         htmlMessage += "</tr>";
     }
     htmlMessage += "</div>";
