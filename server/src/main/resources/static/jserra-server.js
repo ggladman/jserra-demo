@@ -28,19 +28,16 @@ function initialize() {
 }
 
 function loadUserList(userList){
-    console.log("USERLIST: " + userList);
     var userListLength = userList.length;
-    for(var i = 0; i < userListLength; i++) {
+    for (var i = 0; i < userListLength; i++) {
         var userData = userList[i];
-        var username = userData.username;
-        var balance = userData.balance;
-        addUser(username, balance);
+        addUser(userData.username, userData.balance);
     }
 }
 
 function loadMessageHistory(messageHistory){
     var messagesLength = messageHistory.length;
-    for(var i = 1; i <= messagesLength; i++){
+    for (var i = 1; i <= messagesLength; i++) {
         var transferMessage = messageHistory[messagesLength-i];
         //add to messages table
         var htmlMessage = "<div class='message'>";
@@ -107,8 +104,8 @@ function receiveTransfer(transfer) {
     htmlMessage += "<table>"
     for (prop in transfer) {
         var value = transfer[prop];
-        if (prop == amount) {
-            value = Number(value).toFixed(2);
+        if (prop == "amount") {
+            value = "$" + Number(value).toFixed(2);
         }
         console.log(prop);
         console.log(prop + " : " + transfer[prop]);
