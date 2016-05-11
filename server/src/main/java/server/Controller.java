@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import server.model.FlagResponse;
 import server.model.RegisteredUser;
 import server.model.RegistrationResponse;
 import server.model.SendMoneyResponse;
@@ -43,10 +44,11 @@ public class Controller {
     @Value("${startingBalance:100.00}")
     private String defaultBalance;
 
+    private boolean enforceNoSteal = false;
+
     private List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
     private ArrayBlockingQueue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(MESSAGE_QUEUE_SIZE);
-
 
     @RequestMapping(value = "/messageHistory", method = GET)
     public List<SendMoneyResponse> getMessageHistory(HttpServletRequest request) throws Exception {
@@ -111,19 +113,32 @@ public class Controller {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
+        BigDecimal amountValue = new BigDecimal(amount);
+
+        boolean boomerangTheftAttempt = false;
+
+        if ((enforceNoSteal == true) && (amountValue.compareTo(BigDecimal.ZERO) < 0)) {
+            System.out.println("enforceNoSteal is TRUE, and amount (" + amount + ") is negative. Boomeranging!");
+            amountValue = amountValue.negate();
+            boomerangTheftAttempt = true;
+        }
+
         RegisteredUser registeredUserSender = findUserByName(sender);
         RegisteredUser registeredUserRecipient = findUserByName(recipient);
         if ((registeredUserSender != null) && (registeredUserRecipient != null)) {
-            registeredUserSender.setBalance(registeredUserSender.getBalance().subtract(new BigDecimal(amount)));
-            registeredUserRecipient.setBalance(registeredUserRecipient.getBalance().add(new BigDecimal(amount)));
+            registeredUserSender.setBalance(registeredUserSender.getBalance().subtract(amountValue));
+            registeredUserRecipient.setBalance(registeredUserRecipient.getBalance().add(amountValue));
         }
 
         // TODO: add a status code and/or message to the response object
         SendMoneyResponse sendMoneyResponse = new SendMoneyResponse();
         sendMoneyResponse.setSender(sender);
         sendMoneyResponse.setRecipient(recipient);
-        sendMoneyResponse.setAmount(amount);
+        sendMoneyResponse.setAmount(amountValue.toPlainString());
         sendMoneyResponse.setMessage(message);
+        if (boomerangTheftAttempt) {
+            sendMoneyResponse.setFlags("boomerang");
+        }
 
         if(messageHistoryQueue.size() == MESSAGE_QUEUE_SIZE) {
             messageHistoryQueue.remove();
@@ -135,6 +150,34 @@ public class Controller {
 
         postToRabbit(sendMoneyResponse);
         return sendMoneyResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping(method = POST,
+            value = "/flags",
+            consumes = APPLICATION_FORM_URLENCODED_VALUE,
+            produces = APPLICATION_JSON_VALUE)
+    public FlagResponse setFlags(@RequestParam(value = "flag") final String flag,
+                                         @RequestParam(value = "value") final String value,
+                                         HttpServletRequest request) throws Exception {
+        System.out.println("received /flags request:");
+        System.out.println("    flag = " + flag);
+        System.out.println("    value = " + value);
+
+        if (flag.compareToIgnoreCase("boomerang") == 0) {
+            if ((value.compareToIgnoreCase("true") == 0) ||
+                (value.compareToIgnoreCase("on") == 0) ||
+                (value.compareToIgnoreCase("1") == 0)) {
+                enforceNoSteal = true;
+            } else {
+                enforceNoSteal = false;
+            }
+        }
+
+        FlagResponse flagResponse = new FlagResponse();
+        flagResponse.setFlag(flag);
+        flagResponse.setValue(value);
+        return flagResponse;
     }
 
     private RegisteredUser findUserByName(String username) {

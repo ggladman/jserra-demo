@@ -127,6 +127,9 @@ function sendMoney() {
 
         currBalance -= Number(data.amount);
         updateDisplayedBalance();
+        if (data.flags.indexOf("boomerang") > -1) {
+            alert("THEFT ALERT!!! Your theft attempt has been reversed. Play nice!");
+        }
     });
 }
 
