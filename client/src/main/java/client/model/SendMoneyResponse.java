@@ -6,6 +6,7 @@ public class SendMoneyResponse {
     private String recipient;
     private String amount;
     private String message;
+    private String flags;
 
     public String getSender() {
         return sender;
@@ -37,6 +38,14 @@ public class SendMoneyResponse {
 
     public void setMessage(final String message) {
         this.message = message;
+    }
+
+    public String getFlags() {
+        return flags;
+    }
+
+    public void setFlags(final String flags) {
+        this.flags = flags;
     }
 
     @Override
