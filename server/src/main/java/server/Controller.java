@@ -125,16 +125,35 @@ public class Controller {
         sendMoneyResponse.setAmount(amount);
         sendMoneyResponse.setMessage(message);
 
-        if(messageHistoryQueue.size() == MESSAGE_QUEUE_SIZE) {
+        queueMessage(sendMoneyResponse);
+        postToReceipts(sendMoneyResponse);
+
+        return sendMoneyResponse;
+    }
+
+    @RequestMapping(value = "/redistributeWealth", method = GET)
+    public void redistributeWealth(HttpServletRequest request) throws Exception {
+        // TODO: redistribute wealth
+        for (RegisteredUser user : registeredUsers) {
+            if (user.getBalance().compareTo(new BigDecimal(defaultBalance)) != 0) {
+                user.setBalance(new BigDecimal(defaultBalance));
+                SendMoneyResponse sendMoneyResponse = new SendMoneyResponse();
+                sendMoneyResponse.setSender("SkyNet Enforcement");
+                sendMoneyResponse.setRecipient(user.getUsername());
+                sendMoneyResponse.setAmount((user.getBalance().negate().add(new BigDecimal(defaultBalance))).toPlainString());
+                sendMoneyResponse.setMessage("Your balance has been reset.");
+
+                // queueMessage(sendMoneyResponse);
+                postToReceipts(sendMoneyResponse);
+            }
+        }
+    }
+
+    private void queueMessage(final SendMoneyResponse sendMoneyResponse) {
+        if (messageHistoryQueue.size() == MESSAGE_QUEUE_SIZE) {
             messageHistoryQueue.remove();
         }
         messageHistoryQueue.add(sendMoneyResponse);
-
-        String destination = "/topic/receipts";
-        stompTemplate.convertAndSend(destination, sendMoneyResponse);
-
-        postToRabbit(sendMoneyResponse);
-        return sendMoneyResponse;
     }
 
     private RegisteredUser findUserByName(String username) {
@@ -146,6 +165,12 @@ public class Controller {
             }
         }
         return userMatch;
+    }
+
+    private void postToReceipts(final SendMoneyResponse sendMoneyResponse) {
+        String destination = "/topic/receipts";
+        stompTemplate.convertAndSend(destination, sendMoneyResponse);
+        postToRabbit(sendMoneyResponse);
     }
 
     private void postToRabbit(Object object) {
