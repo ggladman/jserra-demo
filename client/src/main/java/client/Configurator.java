@@ -14,6 +14,7 @@ public class Configurator {
 
         sendMoneyRequest.setRecipient(recipient);
         sendMoneyRequest.setAmount(amount);
+        // TODO: uncomment to enable messages while sending
         //sendMoneyRequest.setMessage(message);
 
         return sendMoneyRequest;

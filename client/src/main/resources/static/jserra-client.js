@@ -60,7 +60,9 @@ function submitRegistration() {
         currUsername = data.username;
 
         if (currUsername == null || currUsername.trim() == "") {
-            alert("Please configure your team name");
+            speakText("Please configure your team name.");
+            alert("Please configure your team name.");
+            return;
         } else {
             $("#register").fadeOut("slow");
 
