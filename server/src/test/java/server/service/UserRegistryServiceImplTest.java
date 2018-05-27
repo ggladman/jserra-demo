@@ -1,5 +1,7 @@
-package server.context;
+package server.service;
 
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
@@ -9,26 +11,29 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import server.model.RegisteredUser;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-import static java.math.BigDecimal.ONE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 @RunWith(Theories.class)
-public class RegisteredUsersContextTest {
+public class UserRegistryServiceImplTest {
 
     @DataPoints
     public static final String[] STRINGS = {"foo", "bar"};
 
     @Rule
+    public final JUnitRuleMockery mockery = new JUnitRuleMockery();
+
+    @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    private final RegisteredUsersContext registeredUsersContext = new RegisteredUsersContext();
+    private final BalanceService balanceService = mockery.mock(BalanceService.class);
+    private final UserRegistryServiceImpl registeredUsersContext = new UserRegistryServiceImpl(balanceService);
 
     @Test
     public void testGetRegisteredUsers() {
@@ -42,7 +47,18 @@ public class RegisteredUsersContextTest {
         final String username1 = username + "-1";
         final String username2 = username + "-2";
 
+        mockery.checking(new Expectations() {{
+            oneOf(balanceService).generateRandomBalance(1);
+            will(returnValue(111));
+        }});
+
         registeredUsersContext.addUser(username1);
+
+        mockery.checking(new Expectations() {{
+            oneOf(balanceService).generateRandomBalance(2);
+            will(returnValue(222));
+        }});
+
         registeredUsersContext.addUser(username2);
 
         final List<RegisteredUser> registeredUsers = registeredUsersContext.getRegisteredUsers();
@@ -51,18 +67,22 @@ public class RegisteredUsersContextTest {
         final RegisteredUser registeredUser1 = registeredUsers.get(0);
         assertThat(registeredUser1.getUsername(), is(username1));
         assertThat(registeredUser1.getBalance(), is(notNullValue()));
-        assertThat(registeredUser1.getBalance().compareTo(ONE), is(greaterThanOrEqualTo(0)));
+        assertThat(registeredUser1.getBalance().compareTo(new BigDecimal(111)), is(0));
 
         final RegisteredUser registeredUser2 = registeredUsers.get(1);
         assertThat(registeredUser2.getUsername(), is(username2));
         assertThat(registeredUser2.getBalance(), is(notNullValue()));
-        assertThat(registeredUser2.getBalance().compareTo(ONE), is(greaterThanOrEqualTo(0)));
+        assertThat(registeredUser2.getBalance().compareTo(new BigDecimal(222)), is(0));
     }
 
     @Theory
     public void testAddUser_duplicate(final String username) {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("User with username [" + username + "] already exists");
+
+        mockery.checking(new Expectations() {{
+            ignoring(balanceService);
+        }});
 
         registeredUsersContext.addUser(username);
         registeredUsersContext.addUser(username);
@@ -76,6 +96,10 @@ public class RegisteredUsersContextTest {
 
     @Theory
     public void testFindByUsername(final String username) {
+        mockery.checking(new Expectations() {{
+            ignoring(balanceService);
+        }});
+
         final RegisteredUser registeredUserAdded = registeredUsersContext.addUser(username);
         final RegisteredUser registeredUserFound = registeredUsersContext.findByUsername(username);
         assertThat(registeredUserFound, is(sameInstance(registeredUserAdded)));

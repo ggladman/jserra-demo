@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.PropertySource;
@@ -14,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import server.context.RegisteredUsersContext;
+import server.service.BalanceService;
+import server.service.UserRegistryService;
 import server.model.RegisteredUser;
 import server.model.RegistrationResponse;
 import server.model.SendMoneyResponse;
@@ -42,7 +42,12 @@ public class Controller {
     @Autowired
     private SimpMessagingTemplate stompTemplate;
 
-    private final RegisteredUsersContext registeredUsersContext = new RegisteredUsersContext();
+    @Autowired
+    private UserRegistryService userRegistryService;
+
+    @Autowired
+    private BalanceService balanceService;
+
     private final ArrayBlockingQueue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(MESSAGE_QUEUE_SIZE);
 
     @RequestMapping(value = "/messageHistory", method = GET)
@@ -52,7 +57,7 @@ public class Controller {
 
     @RequestMapping(value = "/userList", method = GET)
     public List<RegisteredUser> getUserList(@SuppressWarnings("unused") final HttpServletRequest request) {
-        return registeredUsersContext.getRegisteredUsers();
+        return userRegistryService.getRegisteredUsers();
     }
 
     @ResponseBody
@@ -65,21 +70,21 @@ public class Controller {
         System.out.println("received REGISTER request:");
         System.out.println("    username = " + username);
 
-        RegisteredUser userMatch = registeredUsersContext.findByUsername(username);
+        RegisteredUser userMatch = userRegistryService.findByUsername(username);
         System.out.println("usermatch " + userMatch);
 
         boolean isNewUser = false;
 
         if (userMatch == null) {
             System.out.println("new user " + username);
-            userMatch = registeredUsersContext.addUser(username);
+            userMatch = userRegistryService.addUser(username);
             isNewUser = true;
         }
 
         final RegistrationResponse registrationResponse = new RegistrationResponse();
         registrationResponse.setUsername(userMatch.getUsername());
         registrationResponse.setBalance(userMatch.getBalance());
-        registrationResponse.setRegisteredUsers(registeredUsersContext.getRegisteredUsers());
+        registrationResponse.setRegisteredUsers(userRegistryService.getRegisteredUsers());
 
         if (isNewUser) {
             final String destination = "/topic/registrations";
@@ -107,8 +112,8 @@ public class Controller {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
-        final RegisteredUser registeredUserSender = registeredUsersContext.findByUsername(sender);
-        final RegisteredUser registeredUserRecipient = registeredUsersContext.findByUsername(recipient);
+        final RegisteredUser registeredUserSender = userRegistryService.findByUsername(sender);
+        final RegisteredUser registeredUserRecipient = userRegistryService.findByUsername(recipient);
         if ((registeredUserSender != null) && (registeredUserRecipient != null)) {
             registeredUserSender.setBalance(registeredUserSender.getBalance().subtract(new BigDecimal(amount)));
             registeredUserRecipient.setBalance(registeredUserRecipient.getBalance().add(new BigDecimal(amount)));

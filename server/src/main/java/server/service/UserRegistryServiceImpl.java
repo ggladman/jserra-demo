@@ -1,6 +1,5 @@
-package server.context;
+package server.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import server.model.RegisteredUser;
 
@@ -8,32 +7,36 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegisteredUsersContext {
+public class UserRegistryServiceImpl implements UserRegistryService {
 
-    @Value("${minimumInitialBalance:20.00}")
-    private BigDecimal minimumInitialBalance;
-
-    @Value("${maximumInitialBalance:200.00}")
-    private BigDecimal maximumInitialBalance;
-
+    private final BalanceService balanceService;
     private final List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
+    UserRegistryServiceImpl(final BalanceService balanceService) {
+        this.balanceService = balanceService;
+    }
+
+    @Override
     public List<RegisteredUser> getRegisteredUsers() {
         return registeredUsers;
     }
 
+    @Override
     public RegisteredUser addUser(final String username) {
         assertUserDoesNotAlreadyExist(username);
 
+        final BigDecimal randomBalance = generateRandomBalance();
+
         final RegisteredUser newRegisteredUser = new RegisteredUser();
         newRegisteredUser.setUsername(username);
-        newRegisteredUser.setBalance(BigDecimal.TEN);
+        newRegisteredUser.setBalance(randomBalance);
 
         registeredUsers.add(newRegisteredUser);
 
         return newRegisteredUser;
     }
 
+    @Override
     public RegisteredUser findByUsername(final String username) {
         for (final RegisteredUser user : registeredUsers) {
             if (username.equals(user.getUsername())) {
@@ -47,6 +50,12 @@ public class RegisteredUsersContext {
     private void assertUserDoesNotAlreadyExist(final String username) {
         final RegisteredUser registeredUser = findByUsername(username);
         Assert.isNull(registeredUser, "User with username [" + username + "] already exists");
+    }
+
+    private BigDecimal generateRandomBalance() {
+        final int randomBalance = balanceService.generateRandomBalance(registeredUsers.size() + 1);
+
+        return new BigDecimal(randomBalance);
     }
 
 }
