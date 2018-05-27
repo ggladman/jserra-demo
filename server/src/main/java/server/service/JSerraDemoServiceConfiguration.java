@@ -31,13 +31,13 @@ public class JSerraDemoServiceConfiguration {
     }
 
     @Bean
-    public BalanceService balanceService(final RandomBalanceGenerator randomBalanceGenerator) {
-        return new BalanceServiceImpl(randomBalanceGenerator);
+    public BalanceService balanceService() {
+        return new BalanceServiceImpl();
     }
 
     @Bean
-    public UserRegistryService userRegistryService(final BalanceService balanceService) {
-        return new UserRegistryServiceImpl(balanceService);
+    public UserRegistryService userRegistryService(final RandomBalanceGenerator randomBalanceGenerator) {
+        return new UserRegistryServiceImpl(randomBalanceGenerator);
     }
 
 }

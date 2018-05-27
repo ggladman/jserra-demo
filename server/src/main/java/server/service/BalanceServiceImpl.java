@@ -5,17 +5,6 @@ import java.util.List;
 
 public class BalanceServiceImpl implements BalanceService {
 
-    private final RandomBalanceGenerator randomBalanceGenerator;
-
-    BalanceServiceImpl(final RandomBalanceGenerator randomBalanceGenerator) {
-        this.randomBalanceGenerator = randomBalanceGenerator;
-    }
-
-    @Override
-    public int generateRandomBalance(final int commonDivisor) {
-        return randomBalanceGenerator.generateRandomBalance(commonDivisor);
-    }
-
     @Override
     public boolean isEvenlyBalanced(final List<BigDecimal> balances) {
         if (balances.size() <= 1) {

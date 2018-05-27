@@ -32,8 +32,8 @@ public class UserRegistryServiceImplTest {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    private final BalanceService balanceService = mockery.mock(BalanceService.class);
-    private final UserRegistryServiceImpl registeredUsersContext = new UserRegistryServiceImpl(balanceService);
+    private final RandomBalanceGenerator randomBalanceGenerator = mockery.mock(RandomBalanceGenerator.class);
+    private final UserRegistryServiceImpl registeredUsersContext = new UserRegistryServiceImpl(randomBalanceGenerator);
 
     @Test
     public void testGetRegisteredUsers() {
@@ -48,14 +48,14 @@ public class UserRegistryServiceImplTest {
         final String username2 = username + "-2";
 
         mockery.checking(new Expectations() {{
-            oneOf(balanceService).generateRandomBalance(1);
+            oneOf(randomBalanceGenerator).generateRandomBalance(1);
             will(returnValue(111));
         }});
 
         registeredUsersContext.addUser(username1);
 
         mockery.checking(new Expectations() {{
-            oneOf(balanceService).generateRandomBalance(2);
+            oneOf(randomBalanceGenerator).generateRandomBalance(2);
             will(returnValue(222));
         }});
 
@@ -81,7 +81,7 @@ public class UserRegistryServiceImplTest {
         expectedException.expectMessage("User with username [" + username + "] already exists");
 
         mockery.checking(new Expectations() {{
-            ignoring(balanceService);
+            ignoring(randomBalanceGenerator);
         }});
 
         registeredUsersContext.addUser(username);
@@ -97,7 +97,7 @@ public class UserRegistryServiceImplTest {
     @Theory
     public void testFindByUsername(final String username) {
         mockery.checking(new Expectations() {{
-            ignoring(balanceService);
+            ignoring(randomBalanceGenerator);
         }});
 
         final RegisteredUser registeredUserAdded = registeredUsersContext.addUser(username);

@@ -25,27 +25,12 @@ import static org.junit.Assume.assumeThat;
 public class BalanceServiceImplTest {
 
     @DataPoints
-    public static int[] COMMON_DIVISORS = {1, 2};
-
-    @DataPoints
     public static BigDecimal[] AMOUNTS = {ONE, TEN};
 
     @Rule
     public final JUnitRuleMockery mockery = new JUnitRuleMockery();
 
-    private final RandomBalanceGenerator randomBalanceGenerator = mockery.mock(RandomBalanceGenerator.class);
-    private final BalanceService balanceService = new BalanceServiceImpl(randomBalanceGenerator);
-
-    @Theory
-    public void testGenerateRandomBalance(final int commonDivisor, final int randomBalanceToReturn) {
-        mockery.checking(new Expectations() {{
-            oneOf(randomBalanceGenerator).generateRandomBalance(commonDivisor);
-            will(returnValue(randomBalanceToReturn));
-        }});
-
-        final int randomBalance = balanceService.generateRandomBalance(commonDivisor);
-        assertThat(randomBalance, is(randomBalanceToReturn));
-    }
+    private final BalanceService balanceService = new BalanceServiceImpl();
 
     @Test
     public void testIsEvenlyBalanced_empty() {

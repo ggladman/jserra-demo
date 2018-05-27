@@ -9,11 +9,11 @@ import java.util.List;
 
 public class UserRegistryServiceImpl implements UserRegistryService {
 
-    private final BalanceService balanceService;
+    private final RandomBalanceGenerator randomBalanceGenerator;
     private final List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
 
-    UserRegistryServiceImpl(final BalanceService balanceService) {
-        this.balanceService = balanceService;
+    UserRegistryServiceImpl(final RandomBalanceGenerator randomBalanceGenerator) {
+        this.randomBalanceGenerator = randomBalanceGenerator;
     }
 
     @Override
@@ -53,7 +53,8 @@ public class UserRegistryServiceImpl implements UserRegistryService {
     }
 
     private BigDecimal generateRandomBalance() {
-        final int randomBalance = balanceService.generateRandomBalance(registeredUsers.size() + 1);
+        // TODO (JJ) [now] Pass in sum of all balances (maybe just pass in the whole registered users list)
+        final int randomBalance = randomBalanceGenerator.generateRandomBalance(registeredUsers.size() + 1);
 
         return new BigDecimal(randomBalance);
     }
