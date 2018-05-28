@@ -1,5 +1,7 @@
 package server.service;
 
+import java.util.List;
+
 public class RandomBalanceGeneratorImpl implements RandomBalanceGenerator {
 
     private final int minimumInitialBalance;
@@ -13,7 +15,10 @@ public class RandomBalanceGeneratorImpl implements RandomBalanceGenerator {
     }
 
     @Override
-    public int generateRandomBalance(final int currentSum, final int commonDivisor) {
+    public int generateRandomBalance(final List<Integer> currentBalances) {
+        final int currentSum = getSum(currentBalances);
+        final int commonDivisor = currentBalances.size() + 1;
+
         int randomBalance = randomIntegerGenerator.nextInt(maximumInitialBalance - minimumInitialBalance + 1) + minimumInitialBalance;
 
         while ((currentSum + randomBalance) % commonDivisor != 0) {
@@ -21,6 +26,16 @@ public class RandomBalanceGeneratorImpl implements RandomBalanceGenerator {
         }
 
         return randomBalance;
+    }
+
+    private int getSum(final List<Integer> balances) {
+        int sum = 0;
+
+        for (final Integer balance : balances) {
+            sum += balance;
+        }
+
+        return sum;
     }
 
 }

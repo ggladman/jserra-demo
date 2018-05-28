@@ -53,10 +53,20 @@ public class UserRegistryServiceImpl implements UserRegistryService {
     }
 
     private BigDecimal generateRandomBalance() {
-        // TODO (JJ) [now] Pass in sum of all balances (maybe just pass in the whole registered users list)
-        final int randomBalance = randomBalanceGenerator.generateRandomBalance(1, registeredUsers.size() + 1);
+        final List<Integer> balances = getBalances();
+        final int randomBalance = randomBalanceGenerator.generateRandomBalance(balances);
 
         return new BigDecimal(randomBalance);
+    }
+
+    private List<Integer> getBalances() {
+        final List<Integer> balances = new ArrayList<Integer>();
+
+        for (final RegisteredUser registeredUser : registeredUsers) {
+            balances.add(registeredUser.getBalance().intValue());
+        }
+
+        return balances;
     }
 
 }

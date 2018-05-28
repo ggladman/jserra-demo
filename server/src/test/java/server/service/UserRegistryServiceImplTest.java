@@ -12,8 +12,11 @@ import org.junit.runner.RunWith;
 import server.model.RegisteredUser;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -46,23 +49,31 @@ public class UserRegistryServiceImplTest {
     public void testAddUser(final String username) {
         final String username1 = username + "-1";
         final String username2 = username + "-2";
+        final String username3 = username + "-3";
 
         mockery.checking(new Expectations() {{
-            oneOf(randomBalanceGenerator).generateRandomBalance(1, 1);
+            oneOf(randomBalanceGenerator).generateRandomBalance(Collections.<Integer>emptyList());
             will(returnValue(111));
         }});
 
         registeredUsersContext.addUser(username1);
 
         mockery.checking(new Expectations() {{
-            oneOf(randomBalanceGenerator).generateRandomBalance(1, 2);
+            oneOf(randomBalanceGenerator).generateRandomBalance(singletonList(111));
             will(returnValue(222));
         }});
 
         registeredUsersContext.addUser(username2);
 
+        mockery.checking(new Expectations() {{
+            oneOf(randomBalanceGenerator).generateRandomBalance(asList(111, 222));
+            will(returnValue(333));
+        }});
+
+        registeredUsersContext.addUser(username3);
+
         final List<RegisteredUser> registeredUsers = registeredUsersContext.getRegisteredUsers();
-        assertThat(registeredUsers.size(), is(2));
+        assertThat(registeredUsers.size(), is(3));
 
         final RegisteredUser registeredUser1 = registeredUsers.get(0);
         assertThat(registeredUser1.getUsername(), is(username1));
@@ -73,6 +84,11 @@ public class UserRegistryServiceImplTest {
         assertThat(registeredUser2.getUsername(), is(username2));
         assertThat(registeredUser2.getBalance(), is(notNullValue()));
         assertThat(registeredUser2.getBalance().compareTo(new BigDecimal(222)), is(0));
+
+        final RegisteredUser registeredUser3 = registeredUsers.get(2);
+        assertThat(registeredUser3.getUsername(), is(username3));
+        assertThat(registeredUser3.getBalance(), is(notNullValue()));
+        assertThat(registeredUser3.getBalance().compareTo(new BigDecimal(333)), is(0));
     }
 
     @Theory
