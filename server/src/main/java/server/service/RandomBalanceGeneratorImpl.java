@@ -13,11 +13,10 @@ public class RandomBalanceGeneratorImpl implements RandomBalanceGenerator {
     }
 
     @Override
-    public int generateRandomBalance(final int commonDivisor) {
-        final int randomInt = randomIntegerGenerator.nextInt(maximumInitialBalance + 1);
-        int randomBalance = randomInt + minimumInitialBalance;
+    public int generateRandomBalance(final int currentSum, final int commonDivisor) {
+        int randomBalance = randomIntegerGenerator.nextInt(maximumInitialBalance - minimumInitialBalance + 1) + minimumInitialBalance;
 
-        while (randomBalance % commonDivisor != 0) {
+        while ((currentSum + randomBalance) % commonDivisor != 0) {
             ++randomBalance;
         }
 

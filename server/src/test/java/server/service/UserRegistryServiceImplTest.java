@@ -48,14 +48,14 @@ public class UserRegistryServiceImplTest {
         final String username2 = username + "-2";
 
         mockery.checking(new Expectations() {{
-            oneOf(randomBalanceGenerator).generateRandomBalance(1);
+            oneOf(randomBalanceGenerator).generateRandomBalance(1, 1);
             will(returnValue(111));
         }});
 
         registeredUsersContext.addUser(username1);
 
         mockery.checking(new Expectations() {{
-            oneOf(randomBalanceGenerator).generateRandomBalance(2);
+            oneOf(randomBalanceGenerator).generateRandomBalance(1, 2);
             will(returnValue(222));
         }});
 
