@@ -19,7 +19,8 @@ public class RandomBalanceGeneratorImpl implements RandomBalanceGenerator {
         final int currentSum = getSum(currentBalances);
         final int commonDivisor = currentBalances.size() + 1;
 
-        int randomBalance = randomIntegerGenerator.nextInt(maximumInitialBalance - minimumInitialBalance + 1) + minimumInitialBalance;
+        final int upperBoundExclusive = maximumInitialBalance - minimumInitialBalance + 1;
+        int randomBalance = randomIntegerGenerator.nextInt(upperBoundExclusive) + minimumInitialBalance;
 
         while ((currentSum + randomBalance) % commonDivisor != 0) {
             ++randomBalance;
