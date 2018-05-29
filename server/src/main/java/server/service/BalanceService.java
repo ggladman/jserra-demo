@@ -1,10 +1,11 @@
 package server.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface BalanceService {
 
-    boolean isEvenlyBalanced(List<BigDecimal> balances);
+    boolean isEvenlyBalanced(List<Integer> balances);
+
+    int average(List<Integer> balances);
 
 }
