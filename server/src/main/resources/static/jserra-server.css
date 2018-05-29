@@ -11,6 +11,11 @@ body {
     margin-right: auto;
     width: 90%;
 }
+#graph_container {
+    float: left;
+    width: 65%;
+    height: 750px;
+}
 #recipienttable {
     width: 100%;
 }
@@ -23,9 +28,10 @@ body {
     height: 550px;
     float: right;
     overflow-y: scroll;
+    padding: 10px;
 }
 .recipient {
-    font-size: 36pt;
+    font-size: 24pt;
     width: 100%;
 }
 .username {
@@ -42,23 +48,36 @@ body {
     margin: 50px;
 }
 
-#messages {
+#messages_container {
+    clear: both;
+    padding: 10px;
     margin-top: 50px;
     margin-left: 2.5%;
-    font-size: 24pt;
     background-color: forestgreen;
-    width: 30%;
-    height: 750px;
+    width: 100%;
+    height: 200px;
     clear: right;
     float: right;
+}
+
+#messages {
+    padding: 0px;
+    font-size: 24pt;
+    background-color: forestgreen;
+    width: 100%;
+    height: 100%;
     overflow-y: scroll;
+    -webkit-mask-image: -webkit-gradient(linear, left 50%, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
 }
 .message {
-    background-color: rgba(255,255,255,0.3);
-    width: 92%;
-    margin: 2%;
-    font-size: 24pt;
-    padding: 2%;
+    background-color: rgba(255,255,255,0.1);
+    width: 98%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 3px;
+    font-size: 16pt;
 }
 .messageproperty {
     padding-right: 16pt;
@@ -89,7 +108,7 @@ body {
     background-color: #69b261;
 }
 .label {
-    font-size: 24pt;
+    font-size: 18pt;
     font-weight: 100;
     margin-top: 6pt;
     margin-botton: 4pt;

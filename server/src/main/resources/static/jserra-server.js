@@ -1,3 +1,14 @@
+var barChartData = {
+    labels: [],
+    datasets: [{
+        label: 'Balance',
+        backgroundColor: "rgba(255,255,255,0.7",
+        borderColor: "rgba(255,255,255,0.7",
+        borderWidth: 1,
+        data: []
+    }]
+};
+
 function initialize() {
     var socket = new SockJS('/request');
     stompClient = Stomp.over(socket);
@@ -23,8 +34,9 @@ function initialize() {
 
     speakText("the server is online.");
 
+
     fadeInMain();
-    setupGraph();
+    setupBarGraph();
 }
 
 function loadUserList(userList){
@@ -41,6 +53,8 @@ function loadMessageHistory(messageHistory){
         var transferMessage = messageHistory[messagesLength-i];
         //add to messages table
         var htmlMessage = "<div class='message'>";
+        htmlMessage += transferMessage["sender"] + " has sent " + transferMessage[amount] + " dollars to " + transferMessage[recipient] + ".";
+/*
         htmlMessage += "<table>"
         for (prop in transferMessage) {
             console.log(prop);
@@ -50,6 +64,7 @@ function loadMessageHistory(messageHistory){
             htmlMessage += "<td class='messagevalue'>" + transferMessage[prop] + "</td>";
             htmlMessage += "</tr>";
         }
+*/        
         htmlMessage += "</div>";
         $("#messages").append(htmlMessage);
     }
@@ -61,6 +76,7 @@ function receiveRegistration(registration) {
 
     // add user to list and graph
     addUser(registration.username, registration.balance);
+    speakText(registration.username + " has joined.");
 }
 
 function receiveTransfer(transfer) {
@@ -85,7 +101,7 @@ function receiveTransfer(transfer) {
             console.log("new balance = " + newbalance)
             $(this).find(".currbalance").html(newbalance.toFixed(2));
 
-            updateNodeBalance(username, newbalance);
+            updateGraphBalance(username, newbalance);
         }
         // increment the sender's balance
         else if (username == transfer.recipient) {
@@ -94,13 +110,13 @@ function receiveTransfer(transfer) {
             console.log("new balance = " + newbalance)
             $(this).find(".currbalance").html(newbalance.toFixed(2));
 
-            updateNodeBalance(username, newbalance);
+            updateGraphBalance(username, newbalance);
         }
-
-        cy.load( cy.elements('*').jsons() );
     });
 
     var htmlMessage = "<div class='message'>";
+    htmlMessage += transfer["sender"] + " has sent " + transfer["amount"] + " dollars to " + transfer["recipient"] + ".";
+    /*
     htmlMessage += "<table>"
     for (prop in transfer) {
         var value = transfer[prop];
@@ -114,10 +130,9 @@ function receiveTransfer(transfer) {
         htmlMessage += "<td class='messagevalue'>" + value + "</td>";
         htmlMessage += "</tr>";
     }
+    */
     htmlMessage += "</div>";
     $("#message_list").prepend(htmlMessage);
-
-    activateLink(transfer.sender, transfer.recipient, transfer.amount);
 }
 
 function fadeInMain() {
@@ -128,6 +143,7 @@ function speakText(textToSpeak) {
     if ('speechSynthesis' in window) {
         var msg = new SpeechSynthesisUtterance(textToSpeak);
         // msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Pipe Organ'; })[0];
+        speechSynthesis.cancel();
         speechSynthesis.speak(msg);
     }
 }
@@ -139,8 +155,69 @@ function addUser(id, balance) {
     htmlMessage += "</tr>"
     $("#recipienttable").append(htmlMessage);
 
-    addNode(id, balance);
+    addGraphItem(id, balance);
 }
+
+function addGraphItem(id, balance) {
+    barChartData.labels.push(id);
+    barChartData.datasets[0].data.push(balance);
+
+    window.myBar.update();
+}
+
+function updateGraphBalance(username, newbalance) {
+//    for (var i = 0; i < barChartData.datasets[0].data.length; i++) {
+    for (var i = 0; i < barChartData.labels.length; i++) {
+        if (barChartData.labels[i] == username) {
+            barChartData.datasets[0].data[i] = newbalance;
+            window.myBar.update();
+        }
+    }
+}
+
+
+function setupBarGraph() {
+    var ctx = document.getElementById('canvas').getContext('2d');
+    window.myBar = new Chart(ctx, {
+        type: 'bar',
+        data: barChartData,
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            events: [],
+            legend: {
+                display: false,
+                position: 'top',
+            },
+            title: {
+                display: true,
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    ticks: {
+                        fontColor: "#fff",
+                        fontSize: 20
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    gridLines: {
+                        color: "rgba(255,255,255,0.3)"
+                    },
+                    ticks: {
+                        fontColor: "#fff",
+                        fontSize: 20,
+                        suggestedMin: 0,    
+                        suggestedMax: 100,                                
+                        beginAtZero: true   
+                    }
+                }]
+            }
+        }
+    });    
+}
+
 
 window.onload = initialize;
 
