@@ -116,9 +116,6 @@ public class Controller implements MessageListener {
         Number amountNumber = new BigDecimal(amount);
         SendMoneyRequest sendMoneyRequest = configurator.buildSendMoneyRequest(recipient, amountNumber, message);
 
-        // Round to two decimal places.
-        // double amountRounded = Math.round(sendMoneyRequest.getAmount().doubleValue() * 100.0) / 100.0;
-
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
         nameValuePairs.add(new BasicNameValuePair("sender", getSender()));
         nameValuePairs.add(new BasicNameValuePair("recipient", sendMoneyRequest.getRecipient()));

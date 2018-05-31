@@ -6,7 +6,7 @@ public class Configurator {
 
     public String getTeamName() {
         // TODO: Put your team name in between the quotes below.
-        return "Greg";
+        return "";
     }
 
     public SendMoneyRequest buildSendMoneyRequest(String recipient, Number amount, String message) {
