@@ -71,7 +71,7 @@ function submitRegistration() {
             $("#teamname").html(currUsername);
             registeredUsers.push(currUsername);
             currBalance = Number(data.balance);
-            $("#balance").html('$' + currBalance.toFixed(2));
+            $("#balance").html('$' + currBalance.toFixed(0));
 
             $("#main").fadeIn("slow");
             // document.getElementById('audio_chime').play();
@@ -100,7 +100,7 @@ function sendMoney() {
         alert("Oops! That's not a number!")
         return;
     }
-    userAmountAsNumber = Number(userAmountAsNumber).toFixed(2);
+    userAmountAsNumber = Number(userAmountAsNumber).toFixed(0);
 
     if (userAmountAsNumber <= 0) {
         alert("Crime doesn't pay!!");
@@ -110,7 +110,8 @@ function sendMoney() {
         alert("You don't have that much money.");
         return;
     }
-    var userMessage = $("#message").val();
+    // var userMessage = $("#message").val();
+    var userMessage = null;
 
     var userRecipient = $("#recipients").val();
     if (userRecipient == null) {
@@ -122,7 +123,7 @@ function sendMoney() {
         amount: userAmountAsNumber,
         message: userMessage
     }, function (data) {
-        //$("#sendamount").val(Number(data.amount).toFixed(2));
+        //$("#sendamount").val(Number(data.amount).toFixed(0));
         $("#sendamount").val(Number(data.amount));
         //$("#message").val(data.message);
         $("#recipients").val(data.recipient);
@@ -133,7 +134,7 @@ function sendMoney() {
 }
 
 function updateDisplayedBalance() {
-    $("#balance").html('$' + currBalance.toFixed(2));
+    $("#balance").html('$' + currBalance.toFixed(0));
 }
 
 function speakText(textToSpeak) {

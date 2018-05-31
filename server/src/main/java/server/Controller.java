@@ -81,10 +81,19 @@ public class Controller {
             isNewUser = true;
         }
 
+        List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
+        List<Integer> balances = new ArrayList();
+        for (RegisteredUser registeredUser : registeredUsers) {
+            balances.add(registeredUser.getBalance().intValue());
+        }
+        int averageBalance = balanceService.average(balances);
+        System.out.println("average balance = " + averageBalance);
+
         final RegistrationResponse registrationResponse = new RegistrationResponse();
         registrationResponse.setUsername(userMatch.getUsername());
         registrationResponse.setBalance(userMatch.getBalance());
-        registrationResponse.setRegisteredUsers(userRegistryService.getRegisteredUsers());
+        registrationResponse.setAverageBalance(new BigDecimal(averageBalance));
+        registrationResponse.setRegisteredUsers(registeredUsers);
 
         if (isNewUser) {
             final String destination = "/topic/registrations";
@@ -136,6 +145,16 @@ public class Controller {
 
         postToRabbit(sendMoneyResponse);
         return sendMoneyResponse;
+    }
+
+    @RequestMapping(value = "/isBalanced", method = GET)
+    public boolean isBalanced(@SuppressWarnings("unused") final HttpServletRequest request) {
+        List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
+        List<Integer> balances = new ArrayList();
+        for (RegisteredUser registeredUser : registeredUsers) {
+            balances.add(registeredUser.getBalance().intValue());
+        }
+        return balanceService.isEvenlyBalanced(balances);
     }
 
 
