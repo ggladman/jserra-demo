@@ -16,6 +16,10 @@ body {
     display: none;
 }
 
+.message_ui {
+    display: none;
+}
+
 #teamname {
     font-size: 36pt;
     text-align: center;

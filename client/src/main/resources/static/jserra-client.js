@@ -110,8 +110,7 @@ function sendMoney() {
         alert("You don't have that much money.");
         return;
     }
-    // var userMessage = $("#message").val();
-    var userMessage = null;
+    var userMessage = $("#message").val();
 
     var userRecipient = $("#recipients").val();
     if (userRecipient == null) {
@@ -125,7 +124,7 @@ function sendMoney() {
     }, function (data) {
         //$("#sendamount").val(Number(data.amount).toFixed(0));
         $("#sendamount").val(Number(data.amount));
-        //$("#message").val(data.message);
+        // $("#message").val(data.message);
         $("#recipients").val(data.recipient);
 
         currBalance -= Number(data.amount);
