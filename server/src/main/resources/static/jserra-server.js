@@ -12,6 +12,9 @@ var barChartData = {
 var averageBalance = 0;
 
 function initialize() {
+
+    $(".pyro").hide();
+
     var socket = new SockJS('/request');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function(frame) {
@@ -69,6 +72,15 @@ function receiveRegistration(registration) {
     speakText(registration.username + " has joined.");
     averageBalance = registration.averageBalance;
     setupBarGraph();
+
+    $.getJSON("jserra/isBalanced", function (data) {
+        if (data == true) {
+            $(".pyro").show();
+        } else {
+            $(".pyro").hide();
+        }
+    });
+
 }
 
 function receiveTransfer(transfer) {
@@ -112,8 +124,10 @@ function receiveTransfer(transfer) {
 
     $.getJSON("jserra/isBalanced", function (data) {
         if (data == true) {
-            document.getElementById('celebration').play();
+            $(".pyro").show();
+            document.getElementById('epic-win').play();
         } else {
+            $(".pyro").hide();
             speakText(transfer.sender + " has sent $" + transfer.amount + " to " + transfer.recipient + messageBlock + ".");
         }
     });
