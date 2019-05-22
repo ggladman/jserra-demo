@@ -5,12 +5,14 @@
     <script src="sockjs-0.3.4.js"></script>
     <script src="stomp.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" crossorigin="anonymous"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.5/chartjs-plugin-annotation.js'></script>
+    <script src="utils.js"></script>
     <script src="jserra-server.js"></script>
-    <script src="jserra-server-test.js"></script>
-    <script src="jserra-server-gfx.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="jserra-server.css"></head>
+    <link rel="stylesheet" type="text/css" href="jserra-server.css">
+    <link rel="stylesheet" type="text/css" href="pyro.css">
+</head>
 </head>
 <body>
     <div id="main">
@@ -18,14 +20,23 @@
             <div class="label">recipients</div>
             <table id="recipienttable"></table>
         </div>
-        <div id="recipient_graph">
+        <div id="graph_container">
+            <canvas id="canvas"></canvas>
         </div>
-        <div id="messages">
-            <div class="label">messages</div>
-            <div id="message_list"></div>
+        <div id="messages_container">
+            <div id="messages">
+                <div class="label">messages</div>
+                <div id="message_list"></div>
+            </div>
         </div>
+    </div>
+    <div class="pyro" style="display:none;">
+        <div class="before"></div>
+        <div class="after"></div>
     </div>
     <audio id="audio_cashregister" src="mp3/cashregister.mp3"></audio>
     <audio id="audio_chime" src="mp3/chime.mp3"></audio>
+    <audio id="celebration" src="mp3/celebration.mp3"></audio>
+    <audio id="epic-win" src="mp3/epic-win.mp3"></audio>
 </body>
 </html>

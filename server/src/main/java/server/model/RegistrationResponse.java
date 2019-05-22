@@ -7,6 +7,7 @@ public class RegistrationResponse {
 
     private String username;
     private BigDecimal balance;
+    private BigDecimal averageBalance;
     private List<RegisteredUser> registeredUsers;
 
     public String getUsername() {
@@ -19,6 +20,14 @@ public class RegistrationResponse {
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public BigDecimal getAverageBalance() {
+        return averageBalance;
+    }
+
+    public void setAverageBalance(BigDecimal averageBalance) {
+        this.averageBalance = averageBalance;
     }
 
     public void setBalance(final BigDecimal balance) {

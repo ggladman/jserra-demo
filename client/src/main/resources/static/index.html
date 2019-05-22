@@ -15,9 +15,9 @@
             <div id="balance">$0</div>
             <div id="sendinput">
                 <div class="label">amount to send:</div>
-                <input id="sendamount">
-                <div class="label">message:</div>
-                <input id="message">
+                <input id="sendamount" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                <div class="label message_ui">message:</div>
+                <input class="message_ui" id="message">
                 <div class="label">recipient:</div>
                 <div id="recipient_list">
                     <select id="recipients" name="recipients" size="6">
