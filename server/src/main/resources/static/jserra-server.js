@@ -9,6 +9,7 @@ var barChartData = {
     }]
 };
 
+var userCount = 0;
 var averageBalance = 0;
 
 function initialize() {
@@ -74,7 +75,7 @@ function receiveRegistration(registration) {
     setupBarGraph();
 
     $.getJSON("jserra/isBalanced", function (data) {
-        if (data == true) {
+        if ((data == true) && (userCount > 1)) {
             $(".pyro").show();
         } else {
             $(".pyro").hide();
@@ -140,13 +141,14 @@ function fadeInMain() {
 function speakText(textToSpeak) {
     if ('speechSynthesis' in window) {
         var msg = new SpeechSynthesisUtterance(textToSpeak);
-        // msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Pipe Organ'; })[0];
+        msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Karen'; })[0];
         speechSynthesis.cancel();
         speechSynthesis.speak(msg);
     }
 }
 
 function addUser(id, balance) {
+    userCount++;
     var htmlMessage = "<tr class='recipient'>";
     htmlMessage += "<td class='username'>" + id + "</td>";
     htmlMessage += "<td class='currbalance'>" + balance.toFixed(0) + "</td>";

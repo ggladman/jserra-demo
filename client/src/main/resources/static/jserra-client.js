@@ -14,8 +14,13 @@ function connect() {
         })
     });
 
-    speakText("hello.");
+    speakText("hello!");
     fadeInRegistration();
+    $.getJSON("jserra/config", function (data) {
+        if (data.enableMessaging == true)  {
+            $(".message_ui").show();
+        }
+    });
 }
 
 function receiveRegistration(registration) {
@@ -90,6 +95,17 @@ function submitRegistration() {
 }
 
 function sendMoney() {
+    if (sendButtonEnabled == false) {
+        return;
+    }
+    sendButtonEnabled = false;
+    $("#submit").css({opacity: 0.5});
+
+    setTimeout(function () {
+        sendButtonEnabled = true;
+        $("#submit").css({opacity: 1.0});
+    },3000);
+
     var userAmountAsString = $("#sendamount").val();
     if (userAmountAsString == "") {
         alert("You have to enter an amount.");
@@ -139,27 +155,17 @@ function updateDisplayedBalance() {
 function speakText(textToSpeak) {
     if ('speechSynthesis' in window) {
         var msg = new SpeechSynthesisUtterance(textToSpeak);
-        // msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Pipe Organ'; })[0];
+        msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Karen'; })[0];
         speechSynthesis.speak(msg);
     }
 }
-
-window.speechSynthesis.onvoiceschanged = function () {
-    var speechSynthesisVoices = speechSynthesis.getVoices();
-    /*
-     var accents = _(speechSynthesisVoices).pluck('lang');
-     var voices = _(speechSynthesisVoices).pluck('voiceURI');
-     var names = _(speechSynthesisVoices).pluck('name');
-     console.log('names', names);
-     console.log('accents', _.uniq(accents));
-     console.log('voices', voices);
-     */
-};
 
 var currUsername = "";
 
 var currBalance = 0;
 
 var registeredUsers = new Array();
+
+var sendButtonEnabled = true;
 
 window.onload = connect;

@@ -75,7 +75,7 @@ public class Controller {
 
         boolean isNewUser = false;
 
-        if (userMatch == null) {
+        if ((userMatch == null) && (!username.isEmpty())) {
             System.out.println("new user " + username);
             userMatch = userRegistryService.addUser(username);
             isNewUser = true;
@@ -90,17 +90,20 @@ public class Controller {
         System.out.println("average balance = " + averageBalance);
 
         final RegistrationResponse registrationResponse = new RegistrationResponse();
-        registrationResponse.setUsername(userMatch.getUsername());
-        registrationResponse.setBalance(userMatch.getBalance());
-        registrationResponse.setAverageBalance(new BigDecimal(averageBalance));
-        registrationResponse.setRegisteredUsers(registeredUsers);
 
-        if (isNewUser) {
-            final String destination = "/topic/registrations";
-            stompTemplate.convertAndSend(destination, registrationResponse);
+        if (userMatch != null) {
+            registrationResponse.setUsername(userMatch.getUsername());
+            registrationResponse.setBalance(userMatch.getBalance());
+            registrationResponse.setAverageBalance(new BigDecimal(averageBalance));
+            registrationResponse.setRegisteredUsers(registeredUsers);
+
+            if (isNewUser) {
+                final String destination = "/topic/registrations";
+                stompTemplate.convertAndSend(destination, registrationResponse);
+            }
+
+            postToRabbit(registrationResponse);
         }
-
-        postToRabbit(registrationResponse);
 
         return registrationResponse;
     }

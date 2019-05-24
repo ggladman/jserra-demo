@@ -1,5 +1,6 @@
 package client;
 
+import client.model.ConfigurationResponse;
 import client.model.HttpResponseData;
 import client.model.RegistrationResponse;
 import client.model.SendMoneyRequest;
@@ -85,7 +86,20 @@ public class Controller implements MessageListener {
 
     }*/
 
-        @RequestMapping(value = "/register", method = GET)
+    @RequestMapping(value = "/config", method = GET)
+    public ConfigurationResponse getConfiguration() throws Exception {
+        System.out.println("received CONFIG request from webapp.");
+
+        ConfigurationResponse configurationResponse = new ConfigurationResponse();
+
+        configurationResponse.setTeamName(configurator.getTeamName());
+        configurationResponse.setEnableMessaging(configurator.isMessagingEnabled());
+
+        return configurationResponse;
+    }
+
+
+    @RequestMapping(value = "/register", method = GET)
     public RegistrationResponse register() throws Exception {
         System.out.println("received REGISTER request from webapp.");
 
