@@ -11,7 +11,7 @@ class Configurator {
 
     Configurator() {
         // TODO: Replace the empty quotes below with your team name.
-        teamName = randomTeamName();
+        teamName = "";
 
         // TODO: set to true to enable messages while sending
         messagingEnabled = false;
