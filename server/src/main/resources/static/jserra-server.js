@@ -226,8 +226,8 @@ function setupBarGraph() {
                         mode: "horizontal",
                         scaleID: "y-axis-0",
                         value: averageBalance,
-                        borderColor: "rgba(0,0,0,0.5)",
-                        borderWidth: 1,
+                        borderColor: "rgba(0,255,0,0.75)",
+                        borderWidth: 2,
                         label: {
                             // backgroundColor: "red",
                             content: "50",
