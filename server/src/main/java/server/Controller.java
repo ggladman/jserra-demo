@@ -79,7 +79,7 @@ public class Controller {
         }
 
         List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
-        List<Integer> balances = new ArrayList();
+        List<Integer> balances = new ArrayList<>();
         for (RegisteredUser registeredUser : registeredUsers) {
             balances.add(registeredUser.getBalance().intValue());
         }
@@ -145,7 +145,7 @@ public class Controller {
     @RequestMapping(value = "/isBalanced", method = GET)
     public boolean isBalanced(@SuppressWarnings("unused") final HttpServletRequest request) {
         List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
-        List<Integer> balances = new ArrayList();
+        List<Integer> balances = new ArrayList<>();
         for (RegisteredUser registeredUser : registeredUsers) {
             balances.add(registeredUser.getBalance().intValue());
         }
