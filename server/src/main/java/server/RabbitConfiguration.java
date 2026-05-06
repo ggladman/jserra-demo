@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfiguration {
 
-    private static final String AMQP_HOST_NAME = "192.168.99.86";
+    private static final String AMQP_HOST_NAME = "localhost";
     public static final String AMQP_EXCHANGE_NAME = "jserra";
     public static final String AMQP_USER_NAME = "xoom";
     public static final String AMQP_PASSWORD = "xoom123";
