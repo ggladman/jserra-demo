@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +45,9 @@ public class Controller {
 
     @Autowired
     private BalanceService balanceService;
+
+    @Autowired
+    private AmqpTemplate amqpTemplate;
 
     private final ArrayBlockingQueue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(MESSAGE_QUEUE_SIZE);
 
@@ -124,12 +125,7 @@ public class Controller {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
-        final RegisteredUser registeredUserSender = userRegistryService.findByUsername(sender);
-        final RegisteredUser registeredUserRecipient = userRegistryService.findByUsername(recipient);
-        if ((registeredUserSender != null) && (registeredUserRecipient != null)) {
-            registeredUserSender.setBalance(registeredUserSender.getBalance().subtract(new BigDecimal(amount)));
-            registeredUserRecipient.setBalance(registeredUserRecipient.getBalance().add(new BigDecimal(amount)));
-        }
+        userRegistryService.transferBalance(sender, recipient, new BigDecimal(amount));
 
         // TODO: add a status code and/or message to the response object
         final SendMoneyResponse sendMoneyResponse = new SendMoneyResponse();
@@ -162,11 +158,8 @@ public class Controller {
 
 
     private void postToRabbit(final Object object) {
-        final ApplicationContext context = new AnnotationConfigApplicationContext(RabbitConfiguration.class);
-        final AmqpTemplate template = context.getBean(AmqpTemplate.class);
-
         final String jsonRepresentation = convertObjectToJSON(object);
-        template.convertAndSend(RabbitConfiguration.AMQP_EXCHANGE_NAME, null, jsonRepresentation);
+        amqpTemplate.convertAndSend(RabbitConfiguration.AMQP_EXCHANGE_NAME, null, jsonRepresentation);
     }
 
     private String convertObjectToJSON(final Object object) {

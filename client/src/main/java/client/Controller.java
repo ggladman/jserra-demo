@@ -7,11 +7,12 @@ import client.model.SendMoneyRequest;
 import client.model.SendMoneyResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,6 +53,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class Controller implements MessageListener {
 
     private static final Configurator configurator = new Configurator();
+
+    private SimpleMessageListenerContainer rabbitListenerContainer;
+    private CachingConnectionFactory rabbitConnectionFactory;
 
     public static final String URI = "/jserra";
 
@@ -206,25 +211,35 @@ public class Controller implements MessageListener {
     }
 
     private void setupRabbitListener() throws IOException {
-        CachingConnectionFactory cf = new CachingConnectionFactory(amqpHostName);
-        cf.setUsername(rabbitUserName);
-        cf.setPassword(rabbitUserPassword);
-        Connection connection = cf.createConnection();
+        rabbitConnectionFactory = new CachingConnectionFactory(amqpHostName);
+        rabbitConnectionFactory.setUsername(rabbitUserName);
+        rabbitConnectionFactory.setPassword(rabbitUserPassword);
+        Connection connection = rabbitConnectionFactory.createConnection();
         Channel channel = connection.createChannel(true);
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, "jserra", "");
+        channel.close();
 
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(cf);
-        container.setQueueNames(queueName);
-        container.setMessageListener(this);
-        container.start();
+        rabbitListenerContainer = new SimpleMessageListenerContainer();
+        rabbitListenerContainer.setConnectionFactory(rabbitConnectionFactory);
+        rabbitListenerContainer.setQueueNames(queueName);
+        rabbitListenerContainer.setMessageListener(this);
+        rabbitListenerContainer.start();
+    }
+
+    @PreDestroy
+    private void shutdownRabbitListener() {
+        if (rabbitListenerContainer != null) {
+            rabbitListenerContainer.stop();
+        }
+        if (rabbitConnectionFactory != null) {
+            rabbitConnectionFactory.destroy();
+        }
     }
 
     private HttpResponseData postToServer(String uri, List<NameValuePair> paramList) {
         HttpResponseData responseData = new HttpResponseData();
 
-        final DefaultHttpClient httpClient = new DefaultHttpClient();
         final HttpPost postRequest = new HttpPost(uri);
         try {
             postRequest.setEntity(new UrlEncodedFormEntity(paramList));
@@ -234,8 +249,8 @@ public class Controller implements MessageListener {
 
         StringBuilder responseBody = new StringBuilder();
 
-        try {
-            HttpResponse response = httpClient.execute(postRequest);
+        try (CloseableHttpClient httpClient = HttpClients.createDefault();
+             CloseableHttpResponse response = httpClient.execute(postRequest)) {
             responseData.setResultCode(response.getStatusLine().getStatusCode());
             BufferedReader responseBodyReader = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent()));
@@ -243,7 +258,6 @@ public class Controller implements MessageListener {
             while ((line = responseBodyReader.readLine()) != null) {
                 responseBody.append(line);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

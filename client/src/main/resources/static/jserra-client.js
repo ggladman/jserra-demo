@@ -32,8 +32,8 @@ function receiveRegistration(registration) {
     }
     if ((currUsername != "") && (registration.username != currUsername)) {
         speakText(registration.username + " has logged in.");
-        var htmlMessage = "<option value=\"" + registration.username + "\"> " + registration.username;
-        $("#recipients").append(htmlMessage);
+        var option = $("<option>").val(registration.username).text(registration.username);
+        $("#recipients").append(option);
         registeredUsers.push(registration.username);
     }
 }
@@ -73,7 +73,7 @@ function submitRegistration() {
 
             speakText("Welcome, " + currUsername + "!");
 
-            $("#teamname").html(currUsername);
+            $("#teamname").text(currUsername);
             registeredUsers.push(currUsername);
             currBalance = Number(data.balance);
             $("#balance").html('$' + currBalance.toFixed(0));
@@ -85,8 +85,8 @@ function submitRegistration() {
                 var registeredUser = data.registeredUsers[i];
 
                 if (registeredUser.username != "" && registeredUser.username != currUsername) {
-                    var htmlMessage = "<option value=\"" + registeredUser.username + "\"> " + registeredUser.username;
-                    $("#recipients").append(htmlMessage);
+                    var option = $("<option>").val(registeredUser.username).text(registeredUser.username);
+                    $("#recipients").append(option);
                     registeredUsers.push(registeredUser.username);
                 }
             }
