@@ -1,6 +1,7 @@
 package server;
 
 import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -23,6 +24,11 @@ public class RabbitConfiguration {
         connectionFactory.setUsername(AMQP_USER_NAME);
         connectionFactory.setPassword(AMQP_PASSWORD);
         return connectionFactory;
+    }
+
+    @Bean
+    public FanoutExchange jserraExchange() {
+        return new FanoutExchange(AMQP_EXCHANGE_NAME);
     }
 
     @Bean
