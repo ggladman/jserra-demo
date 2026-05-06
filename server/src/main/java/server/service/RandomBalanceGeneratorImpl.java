@@ -24,6 +24,9 @@ public class RandomBalanceGeneratorImpl implements RandomBalanceGenerator {
 
         while ((currentSum + randomBalance) % commonDivisor != 0) {
             ++randomBalance;
+            if (randomBalance > maximumInitialBalance) {
+                randomBalance = minimumInitialBalance;
+            }
         }
 
         return randomBalance;
