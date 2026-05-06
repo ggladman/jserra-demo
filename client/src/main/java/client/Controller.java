@@ -164,8 +164,8 @@ public class Controller implements MessageListener {
     private String getSender() {
         String sender = configurator.getTeamName();
 
-        // Use teamName property if kids return null.
-        if (sender == null) {
+        // Use teamName property if kids return null or empty.
+        if (sender == null || sender.isEmpty()) {
             sender = teamName;
         }
 
