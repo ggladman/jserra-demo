@@ -13,6 +13,8 @@ public interface UserRegistryService {
 
     RegisteredUser findByUsername(String username);
 
+    RegisteredUser findOrAddUser(String username);
+
     boolean transferBalance(String sender, String recipient, BigDecimal amount);
 
 }

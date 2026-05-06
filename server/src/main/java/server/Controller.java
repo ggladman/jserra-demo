@@ -71,15 +71,11 @@ public class Controller {
         System.out.println("received REGISTER request:");
         System.out.println("    username = " + username);
 
-        RegisteredUser userMatch = userRegistryService.findByUsername(username);
+        RegisteredUser userMatch = userRegistryService.findOrAddUser(username);
         System.out.println("usermatch " + userMatch);
 
-        boolean isNewUser = false;
-
-        if ((userMatch == null) && (!username.isEmpty())) {
+        if (userMatch != null && userMatch.isNewlyRegistered()) {
             System.out.println("new user " + username);
-            userMatch = userRegistryService.addUser(username);
-            isNewUser = true;
         }
 
         List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
@@ -98,7 +94,7 @@ public class Controller {
             registrationResponse.setAverageBalance(new BigDecimal(averageBalance));
             registrationResponse.setRegisteredUsers(registeredUsers);
 
-            if (isNewUser) {
+            if (userMatch.isNewlyRegistered()) {
                 final String destination = "/topic/registrations";
                 stompTemplate.convertAndSend(destination, registrationResponse);
             }

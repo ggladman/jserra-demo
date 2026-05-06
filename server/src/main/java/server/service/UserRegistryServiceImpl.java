@@ -49,6 +49,16 @@ public class UserRegistryServiceImpl implements UserRegistryService {
     }
 
     @Override
+    public synchronized RegisteredUser findOrAddUser(final String username) {
+        RegisteredUser user = findByUsername(username);
+        if (user == null && !username.isEmpty()) {
+            user = addUser(username);
+            user.setNewlyRegistered(true);
+        }
+        return user;
+    }
+
+    @Override
     public synchronized boolean transferBalance(final String sender, final String recipient, final BigDecimal amount) {
         final RegisteredUser senderUser = findByUsername(sender);
         final RegisteredUser recipientUser = findByUsername(recipient);
