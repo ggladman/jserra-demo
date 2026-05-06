@@ -160,6 +160,8 @@ function speakText(textToSpeak) {
     }
 }
 
+var stompClient = null;
+
 var currUsername = "";
 
 var currBalance = 0;
