@@ -5,24 +5,25 @@ import server.model.RegisteredUser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class UserRegistryServiceImpl implements UserRegistryService {
 
     private final RandomBalanceGenerator randomBalanceGenerator;
-    private final List<RegisteredUser> registeredUsers = new ArrayList<RegisteredUser>();
+    private final List<RegisteredUser> registeredUsers = Collections.synchronizedList(new ArrayList<RegisteredUser>());
 
     UserRegistryServiceImpl(final RandomBalanceGenerator randomBalanceGenerator) {
         this.randomBalanceGenerator = randomBalanceGenerator;
     }
 
     @Override
-    public List<RegisteredUser> getRegisteredUsers() {
-        return registeredUsers;
+    public synchronized List<RegisteredUser> getRegisteredUsers() {
+        return new ArrayList<RegisteredUser>(registeredUsers);
     }
 
     @Override
-    public RegisteredUser addUser(final String username) {
+    public synchronized RegisteredUser addUser(final String username) {
         assertUserDoesNotAlreadyExist(username);
 
         final BigDecimal randomBalance = generateRandomBalance();
@@ -37,7 +38,7 @@ public class UserRegistryServiceImpl implements UserRegistryService {
     }
 
     @Override
-    public RegisteredUser findByUsername(final String username) {
+    public synchronized RegisteredUser findByUsername(final String username) {
         for (final RegisteredUser user : registeredUsers) {
             if (username.equals(user.getUsername())) {
                 return user;
@@ -45,6 +46,30 @@ public class UserRegistryServiceImpl implements UserRegistryService {
         }
 
         return null;
+    }
+
+    @Override
+    public synchronized RegisteredUser findOrAddUser(final String username) {
+        RegisteredUser user = findByUsername(username);
+        if (user == null && !username.isEmpty()) {
+            user = addUser(username);
+            user.setNewlyRegistered(true);
+        }
+        return user;
+    }
+
+    @Override
+    public synchronized boolean transferBalance(final String sender, final String recipient, final BigDecimal amount) {
+        final RegisteredUser senderUser = findByUsername(sender);
+        final RegisteredUser recipientUser = findByUsername(recipient);
+
+        if (senderUser == null || recipientUser == null) {
+            return false;
+        }
+
+        senderUser.setBalance(senderUser.getBalance().subtract(amount));
+        recipientUser.setBalance(recipientUser.getBalance().add(amount));
+        return true;
     }
 
     private void assertUserDoesNotAlreadyExist(final String username) {

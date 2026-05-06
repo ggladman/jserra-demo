@@ -7,12 +7,13 @@ import client.model.SendMoneyRequest;
 import client.model.SendMoneyResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -30,12 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +53,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @PropertySource("classpath:application.properties")
 public class Controller implements MessageListener {
 
+    private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private static final Configurator configurator = new Configurator();
+
+    private SimpleMessageListenerContainer rabbitListenerContainer;
+    private CachingConnectionFactory rabbitConnectionFactory;
 
     public static final String URI = "/jserra";
 
@@ -66,25 +73,20 @@ public class Controller implements MessageListener {
     @Value("${serverURI:http://localhost:9090/jserra}")
     private String baseURI;
 
-    @Value("${rabbitUserName:xoom}")
+    @Value("${rabbitUserName:guest}")
     private String rabbitUserName;
 
-    @Value("${rabbitUserPassword:xoom123}")
+    @Value("${rabbitUserPassword:guest}")
     private String rabbitUserPassword;
 
     @PostConstruct
     private void PostConstruction() {
         try {
             setupRabbitListener();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set up RabbitMQ listener", e);
         }
     }
-
-    /*@RequestMapping(value = "/messageHistory", method = GET)
-    public RegistrationResponse register() throws Exception {
-
-    }*/
 
     @RequestMapping(value = "/config", method = GET)
     public ConfigurationResponse getConfiguration() throws Exception {
@@ -150,17 +152,17 @@ public class Controller implements MessageListener {
             JSONObject jsonObject = (JSONObject) parser.parse(messageContent);
             processRabbitMessage(jsonObject);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("Failed to parse RabbitMQ message: {}", messageContent, e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to process RabbitMQ message: {}", messageContent, e);
         }
     }
 
     private String getSender() {
         String sender = configurator.getTeamName();
 
-        // Use teamName property if kids return null.
-        if (sender == null) {
+        // Use teamName property if kids return null or empty.
+        if (sender == null || sender.isEmpty()) {
             sender = teamName;
         }
 
@@ -205,47 +207,53 @@ public class Controller implements MessageListener {
         stompTemplate.convertAndSend(destination, sendMoneyResponse);
     }
 
-    private void setupRabbitListener() throws IOException {
-        CachingConnectionFactory cf = new CachingConnectionFactory(amqpHostName);
-        cf.setUsername(rabbitUserName);
-        cf.setPassword(rabbitUserPassword);
-        Connection connection = cf.createConnection();
+    private void setupRabbitListener() throws Exception {
+        rabbitConnectionFactory = new CachingConnectionFactory(amqpHostName);
+        rabbitConnectionFactory.setUsername(rabbitUserName);
+        rabbitConnectionFactory.setPassword(rabbitUserPassword);
+        Connection connection = rabbitConnectionFactory.createConnection();
         Channel channel = connection.createChannel(true);
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, "jserra", "");
+        channel.close();
 
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(cf);
-        container.setQueueNames(queueName);
-        container.setMessageListener(this);
-        container.start();
+        rabbitListenerContainer = new SimpleMessageListenerContainer();
+        rabbitListenerContainer.setConnectionFactory(rabbitConnectionFactory);
+        rabbitListenerContainer.setQueueNames(queueName);
+        rabbitListenerContainer.setMessageListener(this);
+        rabbitListenerContainer.start();
+    }
+
+    @PreDestroy
+    private void shutdownRabbitListener() {
+        if (rabbitListenerContainer != null) {
+            rabbitListenerContainer.stop();
+        }
+        if (rabbitConnectionFactory != null) {
+            rabbitConnectionFactory.destroy();
+        }
     }
 
     private HttpResponseData postToServer(String uri, List<NameValuePair> paramList) {
         HttpResponseData responseData = new HttpResponseData();
 
-        final DefaultHttpClient httpClient = new DefaultHttpClient();
         final HttpPost postRequest = new HttpPost(uri);
-        try {
-            postRequest.setEntity(new UrlEncodedFormEntity(paramList));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        postRequest.setEntity(new UrlEncodedFormEntity(paramList));
 
         StringBuilder responseBody = new StringBuilder();
 
-        try {
-            HttpResponse response = httpClient.execute(postRequest);
-            responseData.setResultCode(response.getStatusLine().getStatusCode());
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            ClassicHttpResponse response = httpClient.executeOpen(null, postRequest, null);
+            responseData.setResultCode(response.getCode());
             BufferedReader responseBodyReader = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent()));
             String line;
             while ((line = responseBodyReader.readLine()) != null) {
                 responseBody.append(line);
             }
-
+            response.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to post to server: {}", uri, e);
         }
 
         responseData.setResultBody(responseBody.toString());

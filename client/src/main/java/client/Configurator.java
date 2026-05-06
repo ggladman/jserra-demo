@@ -2,8 +2,6 @@ package client;
 
 import client.model.SendMoneyRequest;
 
-import java.util.Random;
-
 class Configurator {
 
     private final String teamName;
@@ -34,11 +32,6 @@ class Configurator {
             sendMoneyRequest.setMessage(message);
         }
         return sendMoneyRequest;
-    }
-
-    private String randomTeamName() {
-        final Random random = new Random();
-        return "Team" + (random.nextInt(900) + 100);
     }
 
 }

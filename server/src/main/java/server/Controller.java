@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +17,9 @@ import server.model.RegisteredUser;
 import server.model.RegistrationResponse;
 import server.model.SendMoneyResponse;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @PropertySource("classpath:application.properties")
 public class Controller {
 
+    private static final Logger log = LoggerFactory.getLogger(Controller.class);
+
     static final String URI = "/jserra";
 
     private static final Integer MESSAGE_QUEUE_SIZE = 40;
@@ -47,6 +49,9 @@ public class Controller {
 
     @Autowired
     private BalanceService balanceService;
+
+    @Autowired
+    private AmqpTemplate amqpTemplate;
 
     private final ArrayBlockingQueue<SendMoneyResponse> messageHistoryQueue = new ArrayBlockingQueue<SendMoneyResponse>(MESSAGE_QUEUE_SIZE);
 
@@ -70,19 +75,15 @@ public class Controller {
         System.out.println("received REGISTER request:");
         System.out.println("    username = " + username);
 
-        RegisteredUser userMatch = userRegistryService.findByUsername(username);
+        RegisteredUser userMatch = userRegistryService.findOrAddUser(username);
         System.out.println("usermatch " + userMatch);
 
-        boolean isNewUser = false;
-
-        if ((userMatch == null) && (!username.isEmpty())) {
+        if (userMatch != null && userMatch.isNewlyRegistered()) {
             System.out.println("new user " + username);
-            userMatch = userRegistryService.addUser(username);
-            isNewUser = true;
         }
 
         List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
-        List<Integer> balances = new ArrayList();
+        List<Integer> balances = new ArrayList<>();
         for (RegisteredUser registeredUser : registeredUsers) {
             balances.add(registeredUser.getBalance().intValue());
         }
@@ -97,7 +98,7 @@ public class Controller {
             registrationResponse.setAverageBalance(new BigDecimal(averageBalance));
             registrationResponse.setRegisteredUsers(registeredUsers);
 
-            if (isNewUser) {
+            if (userMatch.isNewlyRegistered()) {
                 final String destination = "/topic/registrations";
                 stompTemplate.convertAndSend(destination, registrationResponse);
             }
@@ -124,12 +125,7 @@ public class Controller {
         System.out.println("    amount = " + amount);
         System.out.println("    message = " + message);
 
-        final RegisteredUser registeredUserSender = userRegistryService.findByUsername(sender);
-        final RegisteredUser registeredUserRecipient = userRegistryService.findByUsername(recipient);
-        if ((registeredUserSender != null) && (registeredUserRecipient != null)) {
-            registeredUserSender.setBalance(registeredUserSender.getBalance().subtract(new BigDecimal(amount)));
-            registeredUserRecipient.setBalance(registeredUserRecipient.getBalance().add(new BigDecimal(amount)));
-        }
+        userRegistryService.transferBalance(sender, recipient, new BigDecimal(amount));
 
         // TODO: add a status code and/or message to the response object
         final SendMoneyResponse sendMoneyResponse = new SendMoneyResponse();
@@ -153,7 +149,7 @@ public class Controller {
     @RequestMapping(value = "/isBalanced", method = GET)
     public boolean isBalanced(@SuppressWarnings("unused") final HttpServletRequest request) {
         List<RegisteredUser> registeredUsers = userRegistryService.getRegisteredUsers();
-        List<Integer> balances = new ArrayList();
+        List<Integer> balances = new ArrayList<>();
         for (RegisteredUser registeredUser : registeredUsers) {
             balances.add(registeredUser.getBalance().intValue());
         }
@@ -162,11 +158,8 @@ public class Controller {
 
 
     private void postToRabbit(final Object object) {
-        final ApplicationContext context = new AnnotationConfigApplicationContext(RabbitConfiguration.class);
-        final AmqpTemplate template = context.getBean(AmqpTemplate.class);
-
         final String jsonRepresentation = convertObjectToJSON(object);
-        template.convertAndSend(RabbitConfiguration.AMQP_EXCHANGE_NAME, null, jsonRepresentation);
+        amqpTemplate.convertAndSend(RabbitConfiguration.AMQP_EXCHANGE_NAME, null, jsonRepresentation);
     }
 
     private String convertObjectToJSON(final Object object) {
@@ -176,7 +169,7 @@ public class Controller {
             final String jsonContent = ow.writeValueAsString(object);
             json = "{ \"type\" : \"" + object.getClass().getSimpleName() + "\",\n \"content\" : " + jsonContent + " }";
         } catch (final JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Failed to serialize object to JSON: {}", object.getClass().getSimpleName(), e);
         }
         return json;
     }
