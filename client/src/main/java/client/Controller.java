@@ -70,10 +70,10 @@ public class Controller implements MessageListener {
     @Value("${serverURI:http://localhost:9090/jserra}")
     private String baseURI;
 
-    @Value("${rabbitUserName:xoom}")
+    @Value("${rabbitUserName:guest}")
     private String rabbitUserName;
 
-    @Value("${rabbitUserPassword:xoom123}")
+    @Value("${rabbitUserPassword:guest}")
     private String rabbitUserPassword;
 
     @PostConstruct
