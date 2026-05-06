@@ -7,13 +7,13 @@ import client.model.SendMoneyRequest;
 import client.model.SendMoneyResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -31,13 +31,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,7 @@ public class Controller implements MessageListener {
     private void PostConstruction() {
         try {
             setupRabbitListener();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -210,7 +209,7 @@ public class Controller implements MessageListener {
         stompTemplate.convertAndSend(destination, sendMoneyResponse);
     }
 
-    private void setupRabbitListener() throws IOException {
+    private void setupRabbitListener() throws Exception {
         rabbitConnectionFactory = new CachingConnectionFactory(amqpHostName);
         rabbitConnectionFactory.setUsername(rabbitUserName);
         rabbitConnectionFactory.setPassword(rabbitUserPassword);
@@ -241,23 +240,20 @@ public class Controller implements MessageListener {
         HttpResponseData responseData = new HttpResponseData();
 
         final HttpPost postRequest = new HttpPost(uri);
-        try {
-            postRequest.setEntity(new UrlEncodedFormEntity(paramList));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        postRequest.setEntity(new UrlEncodedFormEntity(paramList));
 
         StringBuilder responseBody = new StringBuilder();
 
-        try (CloseableHttpClient httpClient = HttpClients.createDefault();
-             CloseableHttpResponse response = httpClient.execute(postRequest)) {
-            responseData.setResultCode(response.getStatusLine().getStatusCode());
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            ClassicHttpResponse response = httpClient.executeOpen(null, postRequest, null);
+            responseData.setResultCode(response.getCode());
             BufferedReader responseBodyReader = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent()));
             String line;
             while ((line = responseBodyReader.readLine()) != null) {
                 responseBody.append(line);
             }
+            response.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

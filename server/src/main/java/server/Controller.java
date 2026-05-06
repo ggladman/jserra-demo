@@ -17,7 +17,7 @@ import server.model.RegisteredUser;
 import server.model.RegistrationResponse;
 import server.model.SendMoneyResponse;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
