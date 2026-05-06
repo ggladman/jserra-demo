@@ -85,11 +85,6 @@ public class Controller implements MessageListener {
         }
     }
 
-    /*@RequestMapping(value = "/messageHistory", method = GET)
-    public RegistrationResponse register() throws Exception {
-
-    }*/
-
     @RequestMapping(value = "/config", method = GET)
     public ConfigurationResponse getConfiguration() throws Exception {
         System.out.println("received CONFIG request from webapp.");
