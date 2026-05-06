@@ -18,6 +18,8 @@ import server.model.RegistrationResponse;
 import server.model.SendMoneyResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = Controller.URI)
 @PropertySource("classpath:application.properties")
 public class Controller {
+
+    private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
     static final String URI = "/jserra";
 
@@ -165,7 +169,7 @@ public class Controller {
             final String jsonContent = ow.writeValueAsString(object);
             json = "{ \"type\" : \"" + object.getClass().getSimpleName() + "\",\n \"content\" : " + jsonContent + " }";
         } catch (final JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Failed to serialize object to JSON: {}", object.getClass().getSimpleName(), e);
         }
         return json;
     }

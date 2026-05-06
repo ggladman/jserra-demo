@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,6 +53,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @PropertySource("classpath:application.properties")
 public class Controller implements MessageListener {
 
+    private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private static final Configurator configurator = new Configurator();
 
     private SimpleMessageListenerContainer rabbitListenerContainer;
@@ -81,7 +84,7 @@ public class Controller implements MessageListener {
         try {
             setupRabbitListener();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to set up RabbitMQ listener", e);
         }
     }
 
@@ -149,9 +152,9 @@ public class Controller implements MessageListener {
             JSONObject jsonObject = (JSONObject) parser.parse(messageContent);
             processRabbitMessage(jsonObject);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("Failed to parse RabbitMQ message: {}", messageContent, e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to process RabbitMQ message: {}", messageContent, e);
         }
     }
 
@@ -250,7 +253,7 @@ public class Controller implements MessageListener {
             }
             response.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to post to server: {}", uri, e);
         }
 
         responseData.setResultBody(responseBody.toString());
